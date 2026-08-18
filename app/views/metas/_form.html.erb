@@ -1,0 +1,45 @@
+<%= form_with(model: meta, url: meta.persisted? ? meta_path(meta) : metas_path) do |form| %>
+  <% if meta.errors.any? %>
+    <div style="color: red">
+      <h2><%= meta.errors.count %> erro(s) impediram que a meta fosse salva:</h2>
+
+      <ul>
+        <% meta.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :descricao, "Descrição", style: "display: block" %>
+    <%= form.textarea :descricao %>
+  </div>
+
+  <div>
+    <%= form.label :categoria, "Categoria", style: "display: block" %>
+    <%= form.text_field :categoria %>
+  </div>
+
+  <div>
+    <%= form.label :status, "Status", style: "display: block" %>
+    <%= form.select :status, [
+      ["Não cumprida", "nao_cumprida"],
+      ["Parcialmente cumprida", "parcialmente_cumprida"],
+      ["Cumprida", "cumprida"]
+    ], prompt: "Selecione o status" %>
+  </div>
+
+  <div>
+    <%= form.label :periodo, "Período", style: "display: block" %>
+    <%= form.select :periodo, [
+      ["Semana", "semana"],
+      ["Mês", "mes"],
+      ["Ano", "ano"]
+    ], prompt: "Selecione o período" %>
+  </div>
+
+  <div>
+    <%= form.submit "Salvar Meta" %>
+  </div>
+<% end %>

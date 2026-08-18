@@ -24,6 +24,11 @@
   </head>
 
   <body>
+    <nav style="background: #333; padding: 10px 20px; margin-bottom: 20px; border-radius: 4px;">
+      <%= link_to "📅 Minhas Tarefas", tasks_path, style: "color: white; text-decoration: none; margin-right: 20px; font-weight: bold;" %>
+      <%= link_to "🎯 Minhas Metas", metas_path, style: "color: white; text-decoration: none; font-weight: bold;" %>
+    </nav>
+
     <%= yield %>
   </body>
 </html>

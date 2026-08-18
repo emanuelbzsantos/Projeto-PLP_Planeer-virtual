@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render "meta", meta: @meta %>
+
+<div>
+  <%= link_to "Editar meta", edit_meta_path(@meta) %> |
+  <%= link_to "Voltar para metas", metas_path %>
+
+  <%= button_to "Excluir meta", meta_path(@meta), method: :delete %>
+</div>
