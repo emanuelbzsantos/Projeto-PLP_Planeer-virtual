@@ -1,0 +1,26 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Minhas Metas</h1>
+
+<div style="display: flex; gap: 15px; overflow-x: auto;">
+  <% @metas_por_periodo.each do |periodo, metas| %>
+    <div style="min-width: 250px; flex: 1; border: 1px solid #ccc; padding: 15px; border-radius: 5px;">
+      <h2 style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 5px;"><%= periodo %></h2>
+
+      <% if metas.any? %>
+        <% metas.each do |meta| %>
+          <%= render "meta", meta: meta %>
+          <p>
+            <%= link_to "Ver detalhes", meta_path(meta), style: "font-size: 13px;" %>
+          </p>
+        <% end %>
+      <% else %>
+        <p style="color: gray; font-size: 13px; text-align: center;"><em>Nenhuma meta para este período.</em></p>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<br>
+<%= link_to "Nova Meta", new_meta_path %> |
+<%= link_to "Voltar para Tarefas", tasks_path %>
