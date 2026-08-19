@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+rm -f /rails/tmp/pids/server.pid
+
+# Compose sets RUN_DB_PREPARE=true. Production image still matches `rails server`.
+if [ "${RUN_DB_PREPARE}" = "true" ] || { [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; }; then
+  ./bin/rails db:prepare
+fi
+
+exec "${@}"
