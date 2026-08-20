@@ -1,7 +1,6 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
-
-  # Changes to the importmap will invalidate the etag for HTML responses
-  stale_when_importmap_changes
+  # Desabilita a verificação de token CSRF para permitir requisições
+  # vindas do frontend Next.js (que roda em outra porta/origem).
+  # Sem isso, o Rails bloqueia qualquer POST/PUT/DELETE externo.
+  skip_forgery_protection
 end
