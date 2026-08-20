@@ -16,7 +16,7 @@ export default function Home() {
           fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/tasks`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/metas`)
         ]);
-        
+
         if (tasksRes.ok) setTasks(await tasksRes.json());
         if (metasRes.ok) setMetas(await metasRes.json());
       } catch (error) {
@@ -25,7 +25,7 @@ export default function Home() {
         setLoading(false);
       }
     }
-    
+
     fetchData();
   }, []);
 
@@ -82,7 +82,7 @@ export default function Home() {
               Ver todas <ArrowRight size={16} />
             </Link>
           </div>
-          
+
           <div className="bg-white dark:bg-black/40 border border-gray-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
             {loading ? (
               <div className="animate-pulse flex flex-col gap-4">
@@ -131,7 +131,7 @@ export default function Home() {
               Ver todas <ArrowRight size={16} />
             </Link>
           </div>
-          
+
           <div className="bg-white dark:bg-black/40 border border-gray-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
             {loading ? (
               <div className="animate-pulse flex flex-col gap-4">
