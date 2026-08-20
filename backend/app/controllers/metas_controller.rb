@@ -13,10 +13,13 @@ class MetasController < ApplicationController
       nome_periodo = periodos[meta.periodo]
       @metas_por_periodo[nome_periodo] << meta if nome_periodo.present?
     end
+
+    render json: @metas_por_periodo
   end
 
   # Mostrar uma meta específica
   def show
+    render json: @meta
   end
 
   # Formulário para criar uma nova meta
@@ -33,25 +36,25 @@ class MetasController < ApplicationController
     @meta = Meta.new(meta_params)
 
     if @meta.save
-      redirect_to meta_path(@meta), notice: "Meta criada com sucesso!"
+      render json: @meta, status: :created
     else
-      render :new, status: :unprocessable_content
+      render json: { errors: @meta.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   # Atualizar uma meta existente
   def update
     if @meta.update(meta_params)
-      redirect_to meta_path(@meta), notice: "Meta atualizada com sucesso!", status: :see_other
+      render json: @meta
     else
-      render :edit, status: :unprocessable_content
+      render json: { errors: @meta.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   # Excluir uma meta
   def destroy
     @meta.destroy!
-    redirect_to metas_path, notice: "Meta excluída com sucesso!", status: :see_other
+    head :no_content
   end
 
   private

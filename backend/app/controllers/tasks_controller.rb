@@ -15,10 +15,13 @@ class TasksController < ApplicationController
         @tarefas_por_dia[dia] << task
       end
     end
+
+    render json: @tarefas_por_dia
   end
 
   # Mostrar uma tarefa específica
   def show
+    render json: @task
   end
 
   # Formulário para criar uma nova tarefa
@@ -35,25 +38,25 @@ class TasksController < ApplicationController
     @task = Task.new(task_params)
 
     if @task.save
-      redirect_to @task, notice: "Tarefa criada com sucesso!"
+      render json: @task, status: :created
     else
-      render :new, status: :unprocessable_content
+      render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   # Atualizar uma tarefa existente
   def update
     if @task.update(task_params)
-      redirect_to @task, notice: "Tarefa atualizada com sucesso!", status: :see_other
+      render json: @task
     else
-      render :edit, status: :unprocessable_content
+      render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   # Excluir uma tarefa
   def destroy
     @task.destroy!
-    redirect_to tasks_path, notice: "Tarefa excluída com sucesso!", status: :see_other
+    head :no_content
   end
 
   private
