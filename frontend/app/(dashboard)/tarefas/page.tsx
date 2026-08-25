@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // Página de Tarefas — /tarefas
 // ============================================================
 // Esta página faz 3 coisas:
@@ -40,17 +40,35 @@ export default function TarefasPage() {
 
   // ----- Função: Buscar tarefas da API -----
   // Faz uma requisição GET para /tasks e salva o resultado no estado
-  async function fetchTasks() {
+  const fetchTasks = async () => {
     try {
-      const response = await fetch(`${API_URL}/tasks`);
-      const data = await response.json();
-      setTasks(data);
+      const token = localStorage.getItem("auth_token");
+      if (!token) return;
+
+      const res = await fetch(`${API_URL}/tasks`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.warn("Usuário não autenticado.");
+        }
+        return;
+      }
+
+      const data = await res.json();
+      if (data && typeof data === "object") {
+        setTasks(data);
+      }
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   // ----- Função: Criar uma nova tarefa -----
   // Faz uma requisição POST para /tasks com os dados do formulário
@@ -58,9 +76,15 @@ export default function TarefasPage() {
     e.preventDefault(); // Evita que a página recarregue ao enviar o formulário
 
     try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) return;
+
       const response = await fetch(`${API_URL}/tasks`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({
           task: {
             title: title,
@@ -87,7 +111,15 @@ export default function TarefasPage() {
   // Faz uma requisição DELETE para /tasks/:id
   async function handleDeleteTask(id: number) {
     try {
-      await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
+      const token = localStorage.getItem("auth_token");
+      if (!token) return;
+
+      await fetch(`${API_URL}/tasks/${id}`, { 
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       fetchTasks(); // Recarrega a lista após excluir
     } catch (error) {
       console.error("Erro ao excluir tarefa:", error);
@@ -98,7 +130,7 @@ export default function TarefasPage() {
   // É chamado automaticamente quando o componente aparece na tela
   useEffect(() => {
     fetchTasks();
-  }, []); // O array vazio [] significa: executar apenas uma vez
+  }, []); // O array vazio significa: executar apenas uma vez
 
   // ----- Renderização (o que aparece na tela) -----
   return (
