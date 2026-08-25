@@ -1,9 +1,10 @@
-﻿# backend/app/models/user.rb
+# backend/app/models/user.rb
 class User < ApplicationRecord
   has_secure_password
   has_secure_token :auth_token
 
   has_many :tasks, dependent: :destroy
+  has_many :metas, dependent: :destroy
 
   # Normaliza o email antes da validação
   before_validation :normalize_email
