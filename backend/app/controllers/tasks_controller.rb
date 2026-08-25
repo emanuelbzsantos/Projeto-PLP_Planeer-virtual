@@ -1,5 +1,5 @@
 class TasksController < ApplicationController
-  before_action :set_task, only: %i[show edit update destroy]
+  before_action :set_task, only: %i[show edit update destroy toggle]
 
   # Listar as tarefas do usuário autenticado organizadas por dia da semana
   def index
@@ -56,6 +56,12 @@ class TasksController < ApplicationController
     head :no_content
   end
 
+  # Alternar o status de conclusão de uma tarefa
+  def toggle
+    @task.update!(completed: !@task.completed)
+    render json: @task
+  end
+
   private
 
   # Busca a tarefa restrita ao escopo do usuário autenticado
@@ -67,6 +73,6 @@ class TasksController < ApplicationController
 
   # Validação de parâmetros fortes (Rails 8)
   def task_params
-    params.expect(task: %i[title description due_date])
+    params.expect(task: %i[title description due_date completed])
   end
 end
