@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -155,29 +155,31 @@ export default function ConfiguresPage() {
   };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto w-full">
+    <div className="p-8 max-w-3xl mx-auto w-full pb-20">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-          <Shield className="text-indigo-500" />
+        <h1 className="text-3xl font-bold text-[var(--color-text)] flex items-center gap-3 tracking-tight">
+          <div className="bg-[var(--color-primary-light)] p-2 rounded-xl text-[var(--color-primary)]">
+            <Shield size={24} />
+          </div>
           Configurações
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-[var(--color-text-secondary)] mt-2">
           Gerencie seu perfil, preferências e segurança da conta.
         </p>
       </header>
 
       {/* Painel Unificado: Dados do Usuário */}
-      <div className="bg-white dark:bg-black/40 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-sm mb-6">
+      <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm mb-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <User className="text-indigo-500" size={20} />
+          <h2 className="text-lg font-semibold text-[var(--color-text)] flex items-center gap-2">
+            <User className="text-[var(--color-primary)]" size={20} />
             Dados do Usuário
           </h2>
 
           {!isEditing && user && (
             <button
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline bg-indigo-50 dark:bg-indigo-950/30 px-3 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] px-3 py-1.5 rounded-lg transition-colors"
             >
               <Edit2 size={12} />
               Editar
@@ -186,14 +188,14 @@ export default function ConfiguresPage() {
         </div>
 
         {successMessage && (
-          <div className="mb-6 p-3 rounded-xl bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 text-sm flex items-center gap-2">
+          <div className="mb-6 p-3 rounded-xl bg-[#F0FDF4] text-[var(--color-success)] text-sm flex items-center gap-2 border border-[#DCFCE7]">
             <CheckCircle size={16} />
             {successMessage}
           </div>
         )}
 
         {errorMessage && (
-          <div className="mb-6 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+          <div className="mb-6 p-3 rounded-xl bg-[#FEF2F2] text-[var(--color-danger)] text-sm flex items-center gap-2 border border-[#FEE2E2]">
             <AlertTriangle size={16} />
             {errorMessage}
           </div>
@@ -203,33 +205,33 @@ export default function ConfiguresPage() {
           !isEditing ? (
             /* MODO DE VISUALIZAÇÃO ESTÁTICA */
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800/50">
-                <div className="bg-indigo-100 dark:bg-indigo-900/50 p-3 rounded-xl text-indigo-600 dark:text-indigo-400">
+              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] rounded-2xl border border-[var(--color-border)]">
+                <div className="bg-white p-3 rounded-xl border border-[var(--color-border)] text-[var(--color-primary)]">
                   <User size={24} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Nome</p>
-                  <p className="text-base font-semibold text-gray-900 dark:text-white">{user.name}</p>
+                  <p className="text-xs text-[var(--color-text-secondary)] font-medium uppercase tracking-wider">Nome</p>
+                  <p className="text-base font-semibold text-[var(--color-text)]">{user.name}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800/50">
-                <div className="bg-purple-100 dark:bg-purple-900/50 p-3 rounded-xl text-purple-600 dark:text-purple-400">
+              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] rounded-2xl border border-[var(--color-border)]">
+                <div className="bg-white p-3 rounded-xl border border-[var(--color-border)] text-[var(--color-primary)]">
                   <Mail size={24} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">E-mail</p>
-                  <p className="text-base font-semibold text-gray-900 dark:text-white">{user.email}</p>
+                  <p className="text-xs text-[var(--color-text-secondary)] font-medium uppercase tracking-wider">E-mail</p>
+                  <p className="text-base font-semibold text-[var(--color-text)]">{user.email}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800/50">
-                <div className="bg-gray-100 dark:bg-gray-800/50 p-3 rounded-xl text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] rounded-2xl border border-[var(--color-border)]">
+                <div className="bg-white p-3 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)]">
                   <Key size={24} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Senha</p>
-                  <p className="text-base font-semibold text-gray-900 dark:text-white">••••••••</p>
+                  <p className="text-xs text-[var(--color-text-secondary)] font-medium uppercase tracking-wider">Senha</p>
+                  <p className="text-base font-semibold text-[var(--color-text)]">••••••••</p>
                 </div>
               </div>
             </div>
@@ -237,10 +239,10 @@ export default function ConfiguresPage() {
             /* MODO DE EDIÇÃO UNIFICADO */
             <form onSubmit={handleUpdateUser} className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Informações Básicas</h3>
+                <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Informações Básicas</h3>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
                     Nome Completo
                   </label>
                   <input
@@ -248,12 +250,12 @@ export default function ConfiguresPage() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
                     E-mail
                   </label>
                   <input
@@ -261,21 +263,21 @@ export default function ConfiguresPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
               </div>
 
-              <hr className="border-gray-200 dark:border-gray-800" />
+              <hr className="border-[var(--color-border)]" />
 
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Segurança (Alteração de Senha)</h3>
-                <p className="text-xs text-gray-400">
+                <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Segurança (Alteração de Senha)</h3>
+                <p className="text-xs text-[var(--color-text-secondary)]">
                   Deixe os campos abaixo em branco caso não queira alterar a sua senha.
                 </p>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
                     Senha Antiga
                   </label>
                   <input
@@ -283,12 +285,12 @@ export default function ConfiguresPage() {
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     placeholder="Insira sua senha atual"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
                     Nova Senha
                   </label>
                   <input
@@ -296,12 +298,12 @@ export default function ConfiguresPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Mínimo de 6 caracteres"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
                     Confirmar Nova Senha
                   </label>
                   <input
@@ -309,12 +311,12 @@ export default function ConfiguresPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repita a nova senha"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
               </div>
 
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-[var(--color-text-secondary)]">
                 Aviso: Alterações de nome ou e-mail têm um tempo de espera obrigatório de 5 minutos entre atualizações.
               </p>
 
@@ -322,14 +324,14 @@ export default function ConfiguresPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition-colors"
+                  className="flex-1 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-lg text-sm transition-colors"
                 >
                   {loading ? "Salvando..." : "Salvar Dados"}
                 </button>
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="flex items-center justify-center gap-1.5 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 border border-[var(--color-border)] text-[var(--color-text)] font-medium rounded-lg text-sm hover:bg-gray-50 transition-colors"
                 >
                   <X size={16} />
                   Cancelar
@@ -338,23 +340,23 @@ export default function ConfiguresPage() {
             </form>
           )
         ) : (
-          <p className="text-gray-500">Nenhum dado do usuário encontrado.</p>
+          <p className="text-[var(--color-text-secondary)]">Nenhum dado do usuário encontrado.</p>
         )}
       </div>
 
       {/* Seção: Logout */}
-      <div className="bg-white dark:bg-black/40 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
-        <h2 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Encerrar Sessão</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
+        <h2 className="text-lg font-semibold mb-2 text-[var(--color-text)]">Encerrar Sessão</h2>
+        <p className="text-sm text-[var(--color-text-secondary)] mb-6">
           Isso encerrará sua sessão atual no Planner Virtual. Para voltar, você precisará inserir suas credenciais de login novamente.
         </p>
 
         <button
           onClick={handleLogout}
           disabled={logoutLoading}
-          className="flex items-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 px-5 py-3 rounded-xl transition-all duration-200 font-semibold border border-red-100 dark:border-red-900/30 text-sm"
+          className="flex items-center gap-2 bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[var(--color-danger)] px-5 py-2.5 rounded-xl transition-all duration-200 font-semibold border border-[#FEE2E2] text-sm"
         >
-          <LogOut size={20} />
+          <LogOut size={18} />
           {logoutLoading ? "Saindo..." : "Sair da conta"}
         </button>
       </div>
