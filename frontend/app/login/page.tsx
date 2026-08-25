@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -51,14 +51,25 @@ export default function AuthPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] p-4 w-full">
-            <div className="w-full max-w-md bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
-                <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100 text-center">
-                    {isLogin ? "Entrar no Planner" : "Criar Conta"}
-                </h1>
+        <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)] p-4 w-full">
+            <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-sm border border-[var(--color-border)]">
+                <div className="flex justify-center mb-6">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-[var(--color-primary)] text-white p-1.5 rounded-lg flex items-center justify-center h-8 w-8 font-bold">
+                            P
+                        </div>
+                        <h1 className="text-2xl font-bold tracking-tight text-[var(--color-text)]">
+                            Planner Virtual
+                        </h1>
+                    </div>
+                </div>
+
+                <h2 className="text-lg font-semibold mb-6 text-[var(--color-text)] text-center">
+                    {isLogin ? "Acesse sua conta" : "Crie sua conta"}
+                </h2>
 
                 {errorMessage && (
-                    <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-sm">
+                    <div className="mb-4 p-3 rounded-lg bg-[#FEF2F2] text-[var(--color-danger)] text-sm border border-[#FEE2E2]">
                         {errorMessage}
                     </div>
                 )}
@@ -66,7 +77,7 @@ export default function AuthPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {!isLogin && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
                                 Nome
                             </label>
                             <input
@@ -74,13 +85,13 @@ export default function AuthPage() {
                                 required
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+                                className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
                             />
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
                             Email
                         </label>
                         <input
@@ -88,12 +99,12 @@ export default function AuthPage() {
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+                            className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
                             Senha
                         </label>
                         <input
@@ -101,13 +112,13 @@ export default function AuthPage() {
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+                            className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                        className="w-full py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-lg transition-colors"
                     >
                         {isLogin ? "Entrar" : "Cadastrar"}
                     </button>
@@ -117,7 +128,7 @@ export default function AuthPage() {
                     <button
                         type="button"
                         onClick={() => setIsLogin(!isLogin)}
-                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                        className="text-sm text-[var(--color-primary)] hover:underline font-medium"
                     >
                         {isLogin ? "Não tem uma conta? Cadastre-se" : "Já tem conta? Entrar"}
                     </button>

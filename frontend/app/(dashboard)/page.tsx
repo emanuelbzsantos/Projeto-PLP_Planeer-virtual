@@ -1,183 +1,155 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
+import { useTasks } from "@/hooks/useTasks";
+import { useMetas } from "@/hooks/useMetas";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { TaskCard } from "@/components/tarefas/TaskCard";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { CalendarDays, Target, Plus } from "lucide-react";
 import Link from "next/link";
-import { CheckCircle2, Circle, Target, CalendarDays, ArrowRight } from "lucide-react";
 
-export default function Home() {
-  const [tasks, setTasks] = useState<any>({});
-  const [metas, setMetas] = useState<any>({});
-  const [loading, setLoading] = useState(true);
+export default function Dashboard() {
+  const { tasks, loading: tasksLoading, toggleTask, deleteTask } = useTasks();
+  const { metas, loading: metasLoading } = useMetas();
+  const [greeting, setGreeting] = useState("");
+  const [userName, setUserName] = useState("");
+  const [todayString, setTodayString] = useState("");
+
+  const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+  const todayIndex = new Date().getDay();
+  const todayName = diasSemana[todayIndex];
 
   useEffect(() => {
-    async function fetchData() {
-      const token = localStorage.getItem("auth_token");
-      if (!token) return;
+    // Saudação baseada no horário
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Bom dia");
+    else if (hour < 18) setGreeting("Boa tarde");
+    else setGreeting("Boa noite");
 
+    // Data de hoje formatada
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+    setTodayString(new Date().toLocaleDateString('pt-BR', options));
+
+    // Nome do usuário
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
       try {
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        };
-        const [tasksRes, metasRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/tasks`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/metas`, { headers })
-        ]);
-
-        if (tasksRes.ok) setTasks(await tasksRes.json());
-        if (metasRes.ok) setMetas(await metasRes.json());
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-      } finally {
-        setLoading(false);
-      }
+        const u = JSON.parse(userStr);
+        setUserName(u.name.split(' ')[0]); // Primeiro nome
+      } catch (e) {}
     }
-
-    fetchData();
   }, []);
 
-  const totalTasks = Object.values(tasks).flat().length;
-  const totalMetas = Object.values(metas).flat().length;
+  // Cálculos para o progresso da semana
+  const allTasks = Object.values(tasks).flat();
+  const totalTasks = allTasks.length;
+  const completedTasks = allTasks.filter(t => t.completed).length;
+
+  // Cálculos de metas
+  const allMetas = Object.values(metas).flat();
+  const metasAtivas = allMetas.length;
+  const metasCumpridas = allMetas.filter(m => m.status === 'cumprida').length;
+  const metasParciais = allMetas.filter(m => m.status === 'parcialmente_cumprida').length;
+
+  const tarefasDeHoje = tasks[todayName] || [];
 
   return (
-    <div className="p-8 max-w-6xl mx-auto w-full">
+    <div className="p-8 max-w-6xl mx-auto w-full pb-20">
       <header className="mb-10">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
-          Olá! Bem-vindo ao Planner
+        <h1 className="text-3xl font-bold text-[var(--color-text)] tracking-tight">
+          {greeting}{userName ? `, ${userName}` : ''}.
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
-          Aqui está um resumo de como está a sua semana.
+        <p className="text-[var(--color-text-secondary)] mt-1.5 font-medium capitalize">
+          {todayString}
         </p>
       </header>
 
       {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div className="bg-white dark:bg-black/40 border border-gray-100 dark:border-gray-800 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300">Tarefas Pendentes</h2>
-            <div className="bg-indigo-100 dark:bg-indigo-900/50 p-3 rounded-full text-indigo-600 dark:text-indigo-400">
-              <CheckCircle2 size={24} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-[var(--color-primary-light)] p-2.5 rounded-xl text-[var(--color-primary)]">
+              <CalendarDays size={22} />
             </div>
+            <h2 className="text-base font-semibold text-[var(--color-text)]">Progresso da Semana</h2>
           </div>
-          <p className="text-4xl font-bold text-gray-900 dark:text-white">
-            {loading ? "..." : totalTasks}
-          </p>
+          
+          {tasksLoading ? (
+            <div className="animate-pulse h-12 bg-gray-100 rounded-lg"></div>
+          ) : (
+            <ProgressBar current={completedTasks} total={totalTasks} />
+          )}
         </div>
 
-        <div className="bg-white dark:bg-black/40 border border-gray-100 dark:border-gray-800 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300">Metas Ativas</h2>
-            <div className="bg-purple-100 dark:bg-purple-900/50 p-3 rounded-full text-purple-600 dark:text-purple-400">
-              <Target size={24} />
+        <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-purple-50 p-2.5 rounded-xl text-purple-600">
+                <Target size={22} />
+              </div>
+              <h2 className="text-base font-semibold text-[var(--color-text)]">Metas Ativas</h2>
             </div>
+            <Link href="/metas" className="text-sm font-medium text-[var(--color-primary)] hover:underline">
+              Ver todas
+            </Link>
           </div>
-          <p className="text-4xl font-bold text-gray-900 dark:text-white">
-            {loading ? "..." : totalMetas}
-          </p>
+          
+          {metasLoading ? (
+            <div className="animate-pulse h-12 bg-gray-100 rounded-lg"></div>
+          ) : (
+            <div>
+              <p className="text-3xl font-bold text-[var(--color-text)] mb-2">{metasAtivas}</p>
+              <p className="text-sm text-[var(--color-text-secondary)] font-medium">
+                {metasCumpridas} cumprida{metasCumpridas !== 1 && 's'} · {metasParciais} em andamento
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Sessão de Tarefas */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <CalendarDays className="text-indigo-500" />
-              Tarefas da Semana
-            </h2>
-            <Link href="/tarefas" className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 text-sm font-medium">
-              Ver todas <ArrowRight size={16} />
-            </Link>
-          </div>
+      {/* Tarefas de Hoje */}
+      <section>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-[var(--color-text)]">Tarefas de Hoje</h2>
+          <Link href="/tarefas" className="flex items-center gap-1.5 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] px-4 py-2 rounded-lg transition-colors">
+            <Plus size={16} />
+            Nova Tarefa
+          </Link>
+        </div>
 
-          <div className="bg-white dark:bg-black/40 border border-gray-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
-            {loading ? (
-              <div className="animate-pulse flex flex-col gap-4">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl w-full"></div>
-                ))}
-              </div>
-            ) : totalTasks === 0 ? (
-              <p className="text-gray-500 text-center py-8">Nenhuma tarefa encontrada.</p>
-            ) : (
-              <div className="space-y-4">
-                {Object.entries(tasks).map(([dia, lista]: [string, any]) => {
-                  if (lista.length === 0) return null;
-                  return (
-                    <div key={dia} className="mb-4 last:mb-0">
-                      <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 ml-2">{dia}</h3>
-                      <div className="space-y-2">
-                        {lista.map((task: any) => (
-                          <div key={task.id} className="flex items-start gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800/60 hover:border-indigo-200 dark:hover:border-indigo-500/30 transition-colors">
-                            <Circle className="text-gray-300 dark:text-gray-600 mt-1 flex-shrink-0" size={20} />
-                            <div>
-                              <h4 className="font-medium text-gray-900 dark:text-gray-100">{task.title}</h4>
-                              {task.description && (
-                                <p className="text-sm text-gray-500 mt-1 line-clamp-1">{task.description}</p>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+        {tasksLoading ? (
+          <div className="animate-pulse flex flex-col gap-3">
+            {[1, 2].map(i => <div key={i} className="h-[72px] bg-white border border-gray-100 rounded-xl"></div>)}
           </div>
-        </section>
-
-        {/* Sessão de Metas */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Target className="text-purple-500" />
-              Minhas Metas
-            </h2>
-            <Link href="/metas" className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 text-sm font-medium">
-              Ver todas <ArrowRight size={16} />
-            </Link>
+        ) : tarefasDeHoje.length === 0 ? (
+          <EmptyState 
+            icon={<CheckSquarePlaceholder />} 
+            title="Seu dia está livre!" 
+            description="Você não tem tarefas agendadas para hoje. Aproveite para descansar ou planejar algo novo."
+          />
+        ) : (
+          <div className="space-y-3">
+            {tarefasDeHoje.map(task => (
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                onToggle={toggleTask} 
+                onDelete={deleteTask} 
+              />
+            ))}
           </div>
-
-          <div className="bg-white dark:bg-black/40 border border-gray-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
-            {loading ? (
-              <div className="animate-pulse flex flex-col gap-4">
-                {[1, 2].map(i => (
-                  <div key={i} className="h-20 bg-gray-100 dark:bg-gray-800 rounded-2xl w-full"></div>
-                ))}
-              </div>
-            ) : totalMetas === 0 ? (
-              <p className="text-gray-500 text-center py-8">Nenhuma meta encontrada.</p>
-            ) : (
-              <div className="space-y-4">
-                {Object.entries(metas).map(([periodo, lista]: [string, any]) => {
-                  if (lista.length === 0) return null;
-                  return (
-                    <div key={periodo} className="mb-4 last:mb-0">
-                      <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 ml-2">{periodo}</h3>
-                      <div className="space-y-3">
-                        {lista.map((meta: any) => (
-                          <div key={meta.id} className="p-4 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/10 dark:to-indigo-900/10 border border-purple-100 dark:border-purple-800/30">
-                            <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{meta.descricao}</h4>
-                            <div className="flex items-center gap-3 text-xs font-medium">
-                              <span className="px-2 py-1 bg-white dark:bg-black/50 text-purple-600 dark:text-purple-400 rounded-md">
-                                {meta.categoria}
-                              </span>
-                              <span className="px-2 py-1 bg-white dark:bg-black/50 text-gray-600 dark:text-gray-400 rounded-md">
-                                {meta.status}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
+        )}
+      </section>
     </div>
+  );
+}
+
+function CheckSquarePlaceholder() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m9 11 3 3L22 4"/>
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </svg>
   );
 }

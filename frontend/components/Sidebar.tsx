@@ -1,26 +1,26 @@
-// ============================================================
-// Componente Sidebar — Barra lateral de navegação
-// ============================================================
-// Este componente é exibido em TODAS as páginas do site.
-// Ele contém os links de navegação (Dashboard, Tarefas, Metas).
-//
-// Conceitos utilizados:
-//   - usePathname(): hook do Next.js que retorna a URL atual
-//   - Link: componente do Next.js para navegar sem recarregar a página
-//   - Ícones: importados da biblioteca "lucide-react"
-// ============================================================
-
-"use client"; // Indica ao Next.js que este componente roda no navegador
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CheckSquare, Target, Settings } from "lucide-react";
+import { LayoutDashboard, CheckSquare, Target, Settings, Layout } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { UserProfile } from "@/types";
 
 export default function Sidebar() {
-  // Pega a URL atual do navegador (ex: "/tarefas")
   const pathname = usePathname();
+  const [user, setUser] = useState<UserProfile | null>(null);
 
-  // Lista de itens do menu com nome, ícone e caminho
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
   const menu = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/" },
     { name: "Tarefas", icon: CheckSquare, path: "/tarefas" },
@@ -28,18 +28,20 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-white/80 dark:bg-black/50 backdrop-blur-xl border-r border-gray-200 dark:border-gray-800 h-screen sticky top-0 flex flex-col transition-colors duration-300">
+    <aside className="w-64 bg-white border-r border-[var(--color-border)] h-screen sticky top-0 flex flex-col">
       {/* Logo / Título do app */}
-      <div className="p-6 flex items-center justify-center">
-        <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
+      <div className="p-6 flex items-center gap-2">
+        <div className="bg-[var(--color-primary)] text-white p-1.5 rounded-lg">
+          <Layout size={20} />
+        </div>
+        <h1 className="text-xl font-bold tracking-tight text-[var(--color-text)]">
           Planner Virtual
         </h1>
       </div>
 
       {/* Links de navegação */}
-      <nav className="flex-1 px-4 space-y-2 mt-8">
+      <nav className="flex-1 px-4 space-y-1.5 mt-4">
         {menu.map((item) => {
-          // Verifica se este link é o que está ativo (URL atual)
           const isActive =
             pathname === item.path ||
             (item.path !== "/" && pathname?.startsWith(item.path));
@@ -49,17 +51,15 @@ export default function Sidebar() {
             <Link
               key={item.path}
               href={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group font-medium text-[15px] ${
                 isActive
-                  ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
+                  ? "bg-[var(--color-primary-light)] text-[var(--color-primary)]"
+                  : "text-[var(--color-text-secondary)] hover:bg-[#F3F4F6] hover:text-[var(--color-text)]"
               }`}
             >
               <Icon
                 size={20}
-                className={`transition-transform duration-200 group-hover:scale-110 ${
-                  isActive ? "text-indigo-600 dark:text-indigo-400" : ""
-                }`}
+                className={isActive ? "text-[var(--color-primary)]" : "text-[var(--color-text-secondary)] group-hover:text-[var(--color-text)]"}
               />
               {item.name}
             </Link>
@@ -67,18 +67,26 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Link de configurações no rodapé */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-800/50">
+      {/* User profile e Configurações */}
+      <div className="p-4 border-t border-[var(--color-border)] space-y-1">
         <Link
           href="/configuracoes"
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[var(--color-text-secondary)] hover:bg-[#F3F4F6] hover:text-[var(--color-text)] transition-colors group font-medium text-[15px]"
         >
-          <Settings
-            size={20}
-            className="transition-transform duration-200 group-hover:rotate-90"
-          />
+          <Settings size={20} className="group-hover:rotate-90 transition-transform duration-200" />
           Configurações
         </Link>
+        
+        {user && (
+          <div className="flex items-center gap-3 px-3 py-3 mt-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)]">
+            <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center font-bold text-sm shrink-0">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[var(--color-text)] truncate">{user.name}</p>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );
