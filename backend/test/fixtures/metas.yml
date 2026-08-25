@@ -1,0 +1,29 @@
+# Fixtures de metas para testes
+
+meta_semanal:
+  descricao: Ler 30 páginas por dia
+  categoria: Estudos
+  status: nao_cumprida
+  periodo: semana
+  user: usuario_teste
+
+meta_mensal:
+  descricao: Correr 3x por semana
+  categoria: Saúde
+  status: parcialmente_cumprida
+  periodo: mes
+  user: usuario_teste
+
+meta_cumprida:
+  descricao: Organizar documentos
+  categoria: Pessoal
+  status: cumprida
+  periodo: semana
+  user: usuario_teste
+
+meta_outro_usuario:
+  descricao: Meta do outro usuário
+  categoria: Trabalho
+  status: nao_cumprida
+  periodo: ano
+  user: outro_usuario
