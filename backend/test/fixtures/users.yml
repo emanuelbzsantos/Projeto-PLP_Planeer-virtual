@@ -1,0 +1,12 @@
+# Fixture de usuário para testes
+usuario_teste:
+  name: Usuário Teste
+  email: teste@example.com
+  password_digest: <%= BCrypt::Password.create('senha123') %>
+  auth_token: token_teste_abc123
+
+outro_usuario:
+  name: Outro Usuário
+  email: outro@example.com
+  password_digest: <%= BCrypt::Password.create('senha123') %>
+  auth_token: token_outro_xyz789

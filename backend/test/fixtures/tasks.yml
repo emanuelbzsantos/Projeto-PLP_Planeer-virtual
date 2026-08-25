@@ -1,11 +1,22 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: MyString
-  description: MyText
-  due_date: 2026-08-17 16:09:14
+  title: Estudar PLP
+  description: Capítulo 4 do livro
+  due_date: 2026-08-25 10:00:00
+  completed: false
+  user: usuario_teste
 
 two:
-  title: MyString
-  description: MyText
-  due_date: 2026-08-17 16:09:14
+  title: Ir ao mercado
+  description: Comprar queijo coalho
+  due_date: 2026-08-25 14:00:00
+  completed: true
+  user: usuario_teste
+
+tarefa_outro_usuario:
+  title: Tarefa do outro
+  description: Não deve aparecer para usuario_teste
+  due_date: 2026-08-25 10:00:00
+  completed: false
+  user: outro_usuario

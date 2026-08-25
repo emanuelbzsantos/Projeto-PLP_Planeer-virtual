@@ -1,5 +1,6 @@
 class Meta < ApplicationRecord
   self.table_name = "metas"
+  belongs_to :user, optional: true
 
   # Valores permitidos para o status da meta
   STATUSES = ["nao_cumprida", "parcialmente_cumprida", "cumprida"]

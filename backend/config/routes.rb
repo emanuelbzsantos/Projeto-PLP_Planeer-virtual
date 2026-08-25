@@ -1,8 +1,16 @@
 Rails.application.routes.draw do
   # REST
   resources :users
-  resources :tasks
-  resources :metas
+  resources :tasks do
+    member do
+      patch :toggle
+    end
+  end
+  resources :metas do
+    member do
+      patch :cycle_status
+    end
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Autenticação e Sessão
