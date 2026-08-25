@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -11,10 +11,17 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchData() {
+      const token = localStorage.getItem("auth_token");
+      if (!token) return;
+
       try {
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        };
         const [tasksRes, metasRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/tasks`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/metas`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/tasks`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/metas`, { headers })
         ]);
 
         if (tasksRes.ok) setTasks(await tasksRes.json());

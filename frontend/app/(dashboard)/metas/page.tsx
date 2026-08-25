@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // Página de Metas — /metas
 // ============================================================
 // Esta página faz 3 coisas:
@@ -58,9 +58,25 @@ export default function MetasPage() {
   // Faz uma requisição GET para /metas e salva o resultado no estado
   async function fetchMetas() {
     try {
-      const response = await fetch(`${API_URL}/metas`);
+      const token = localStorage.getItem("auth_token");
+      if (!token) return;
+
+      const response = await fetch(`${API_URL}/metas`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        console.error("Erro na resposta da API:", response.status);
+        return;
+      }
+
       const data = await response.json();
-      setMetas(data);
+      if (data && typeof data === "object" && !data.error && !data.errors) {
+        setMetas(data);
+      }
     } catch (error) {
       console.error("Erro ao buscar metas:", error);
     } finally {
@@ -74,9 +90,15 @@ export default function MetasPage() {
     e.preventDefault(); // Evita que a página recarregue ao enviar o formulário
 
     try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) return;
+
       const response = await fetch(`${API_URL}/metas`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({
           meta: {
             descricao: descricao,
@@ -105,7 +127,15 @@ export default function MetasPage() {
   // Faz uma requisição DELETE para /metas/:id
   async function handleDeleteMeta(id: number) {
     try {
-      await fetch(`${API_URL}/metas/${id}`, { method: "DELETE" });
+      const token = localStorage.getItem("auth_token");
+      if (!token) return;
+
+      await fetch(`${API_URL}/metas/${id}`, { 
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       fetchMetas(); // Recarrega a lista após excluir
     } catch (error) {
       console.error("Erro ao excluir meta:", error);
@@ -116,7 +146,7 @@ export default function MetasPage() {
   // É chamado automaticamente quando o componente aparece na tela
   useEffect(() => {
     fetchMetas();
-  }, []); // O array vazio [] significa: executar apenas uma vez
+  }, []); // O array vazio significa: executar apenas uma vez
 
   // ----- Renderização (o que aparece na tela) -----
   return (
@@ -239,11 +269,11 @@ export default function MetasPage() {
               </h3>
 
               {/* Lista de metas daquele período */}
-              {lista.length === 0 ? (
+              {lista && Array.isArray(lista) && lista.length === 0 ? (
                 <p className="text-gray-400 text-sm text-center py-4">
                   Sem metas
                 </p>
-              ) : (
+              ) : lista && Array.isArray(lista) ? (
                 <div className="space-y-3">
                   {lista.map((meta) => (
                     <div
@@ -280,6 +310,10 @@ export default function MetasPage() {
                     </div>
                   ))}
                 </div>
+              ) : (
+                <p className="text-gray-400 text-sm text-center py-4">
+                  Erro ao carregar metas
+                </p>
               )}
             </div>
           ))}

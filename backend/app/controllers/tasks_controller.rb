@@ -1,20 +1,17 @@
 class TasksController < ApplicationController
-  before_action :set_task, only: [:show, :edit, :update, :destroy]
+  before_action :set_task, only: %i[show edit update destroy]
 
-  # Listar todas as tarefas organizadas por dia da semana
+  # Listar as tarefas do usuário autenticado organizadas por dia da semana
   def index
-    dias_semana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]
+    dias_semana = %w[Domingo Segunda-feira Terça-feira Quarta-feira Quinta-feira Sexta-feira Sábado]
 
-    # Cria um hash com cada dia da semana apontando para uma lista vazia
-    @tarefas_por_dia = dias_semana.map { |dia| [dia, []] }.to_h
+    # Agrupa apenas tarefas com data definida do usuário autenticado
+    tarefas_agrupadas = current_user.tasks
+                                    .where.not(due_date: nil)
+                                    .group_by { |task| dias_semana[task.due_date.wday] }
 
-    # Agrupa as tarefas no dia da semana correspondente
-    Task.all.each do |task|
-      if task.due_date.present?
-        dia = dias_semana[task.due_date.wday]
-        @tarefas_por_dia[dia] << task
-      end
-    end
+    # Garante todos os 7 dias presentes no JSON de retorno
+    @tarefas_por_dia = dias_semana.index_with { |dia| tarefas_agrupadas[dia] || [] }
 
     render json: @tarefas_por_dia
   end
@@ -24,18 +21,18 @@ class TasksController < ApplicationController
     render json: @task
   end
 
-  # Formulário para criar uma nova tarefa
+  # Instância para formulário de criação
   def new
-    @task = Task.new
+    @task = current_user.tasks.build
   end
 
-  # Formulário para editar uma tarefa existente
+  # Instância para formulário de edição
   def edit
   end
 
-  # Criar uma nova tarefa no banco de dados
+  # Criar uma nova tarefa associada ao usuário atual
   def create
-    @task = Task.new(task_params)
+    @task = current_user.tasks.build(task_params)
 
     if @task.save
       render json: @task, status: :created
@@ -44,7 +41,7 @@ class TasksController < ApplicationController
     end
   end
 
-  # Atualizar uma tarefa existente
+  # Atualizar uma tarefa existente do usuário
   def update
     if @task.update(task_params)
       render json: @task
@@ -61,13 +58,15 @@ class TasksController < ApplicationController
 
   private
 
-  # Buscar a tarefa pelo ID
+  # Busca a tarefa restrita ao escopo do usuário autenticado
   def set_task
-    @task = Task.find(params.expect(:id))
+    @task = current_user.tasks.find(params.expect(:id))
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Tarefa não encontrada." }, status: :not_found
   end
 
-  # Permitir apenas os parâmetros esperados
+  # Validação de parâmetros fortes (Rails 8)
   def task_params
-    params.expect(task: [:title, :description, :due_date])
+    params.expect(task: %i[title description due_date])
   end
 end
