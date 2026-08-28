@@ -3,16 +3,12 @@
 import { useEffect, useState } from "react";
 import { useTasks } from "@/hooks/useTasks";
 import { useMetas } from "@/hooks/useMetas";
-import { ProgressBar } from "@/components/ui/ProgressBar";
-import { TaskCard } from "@/components/tarefas/TaskCard";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { CalendarDays, Target, Plus } from "lucide-react";
+import { CheckCircle2, Clock, Target, TrendingUp, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function Dashboard() {
-  const { tasks, loading: tasksLoading, toggleTask, deleteTask } = useTasks();
+  const { tasks, loading: tasksLoading } = useTasks();
   const { metas, loading: metasLoading } = useMetas();
-  const [greeting, setGreeting] = useState("");
   const [userName, setUserName] = useState("");
   const [todayString, setTodayString] = useState("");
 
@@ -21,135 +17,179 @@ export default function Dashboard() {
   const todayName = diasSemana[todayIndex];
 
   useEffect(() => {
-    // Saudação baseada no horário
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting("Bom dia");
-    else if (hour < 18) setGreeting("Boa tarde");
-    else setGreeting("Boa noite");
-
-    // Data de hoje formatada
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' };
     setTodayString(new Date().toLocaleDateString('pt-BR', options));
 
-    // Nome do usuário
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
         const u = JSON.parse(userStr);
-        setUserName(u.name.split(' ')[0]); // Primeiro nome
+        setUserName(u.name.split(' ')[0]);
       } catch (e) {}
     }
   }, []);
 
-  // Cálculos para o progresso da semana
+  // --- LÓGICA DE DADOS ANALÍTICOS ---
   const allTasks = Object.values(tasks).flat();
+  const tarefasPendentes = allTasks.filter(t => !t.completed).length;
+  const tarefasConcluidas = allTasks.filter(t => t.completed).length;
   const totalTasks = allTasks.length;
-  const completedTasks = allTasks.filter(t => t.completed).length;
+  
+  // Cálculo de Produtividade (Porcentagem)
+  const produtividade = totalTasks === 0 ? 0 : Math.round((tarefasConcluidas / totalTasks) * 100);
 
-  // Cálculos de metas
   const allMetas = Object.values(metas).flat();
-  const metasAtivas = allMetas.length;
-  const metasCumpridas = allMetas.filter(m => m.status === 'cumprida').length;
-  const metasParciais = allMetas.filter(m => m.status === 'parcialmente_cumprida').length;
+  const metasEmAndamento = allMetas.filter(m => m.status === 'parcialmente_cumprida' || m.status === 'nao_cumprida').length;
 
+  // Separando os lembretes do dia
   const tarefasDeHoje = tasks[todayName] || [];
+  const lembretesDeHoje = tarefasDeHoje.filter(t => !t.completed).slice(0, 4); // Pega os 4 primeiros pendentes
 
   return (
-    <div className="p-8 max-w-6xl mx-auto w-full pb-20">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold text-[var(--color-text)] tracking-tight">
-          {greeting}{userName ? `, ${userName}` : ''}.
-        </h1>
-        <p className="text-[var(--color-text-secondary)] mt-1.5 font-medium capitalize">
-          {todayString}
-        </p>
+    <div className="p-8 max-w-6xl mx-auto w-full pb-20 bg-slate-50 min-h-screen">
+      <header className="mb-8 flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+            Painel Analítico
+          </h1>
+          <p className="text-slate-500 mt-2 font-medium capitalize">
+            {todayString} · Bem-vindo de volta, {userName || "Usuário"}!
+          </p>
+        </div>
       </header>
 
-      {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-[var(--color-primary-light)] p-2.5 rounded-xl text-[var(--color-primary)]">
-              <CalendarDays size={22} />
+      {/* --- 4 CARDS OBRIGATÓRIOS DA ISSUE #19 --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        
+        {/* Card 1: Tarefas Pendentes */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Pendentes</h2>
+            <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
+              <Clock size={20} />
             </div>
-            <h2 className="text-base font-semibold text-[var(--color-text)]">Progresso da Semana</h2>
           </div>
-          
-          {tasksLoading ? (
-            <div className="animate-pulse h-12 bg-gray-100 rounded-lg"></div>
-          ) : (
-            <ProgressBar current={completedTasks} total={totalTasks} />
-          )}
+          <p className="text-4xl font-black text-slate-800">
+            {tasksLoading ? "-" : tarefasPendentes}
+          </p>
+          <p className="text-sm text-slate-400 mt-2 font-medium">Aguardando ação</p>
         </div>
 
-        <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-purple-50 p-2.5 rounded-xl text-purple-600">
-                <Target size={22} />
-              </div>
-              <h2 className="text-base font-semibold text-[var(--color-text)]">Metas Ativas</h2>
+        {/* Card 2: Tarefas Concluídas */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Concluídas</h2>
+            <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600">
+              <CheckCircle2 size={20} />
             </div>
-            <Link href="/metas" className="text-sm font-medium text-[var(--color-primary)] hover:underline">
-              Ver todas
-            </Link>
           </div>
-          
-          {metasLoading ? (
-            <div className="animate-pulse h-12 bg-gray-100 rounded-lg"></div>
-          ) : (
-            <div>
-              <p className="text-3xl font-bold text-[var(--color-text)] mb-2">{metasAtivas}</p>
-              <p className="text-sm text-[var(--color-text-secondary)] font-medium">
-                {metasCumpridas} cumprida{metasCumpridas !== 1 && 's'} · {metasParciais} em andamento
-              </p>
+          <p className="text-4xl font-black text-slate-800">
+            {tasksLoading ? "-" : tarefasConcluidas}
+          </p>
+          <p className="text-sm text-slate-400 mt-2 font-medium">Tarefas finalizadas</p>
+        </div>
+
+        {/* Card 3: Metas em Andamento */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Metas Ativas</h2>
+            <div className="bg-purple-100 p-2 rounded-lg text-purple-600">
+              <Target size={20} />
             </div>
-          )}
+          </div>
+          <p className="text-4xl font-black text-slate-800">
+            {metasLoading ? "-" : metasEmAndamento}
+          </p>
+          <p className="text-sm text-slate-400 mt-2 font-medium">Foco no objetivo</p>
+        </div>
+
+        {/* Card 4: Indicador de Produtividade */}
+        <div className="bg-indigo-600 rounded-2xl p-6 shadow-md text-white">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-indigo-200 uppercase tracking-wider">Produtividade</h2>
+            <div className="bg-indigo-500 p-2 rounded-lg text-white">
+              <TrendingUp size={20} />
+            </div>
+          </div>
+          <div className="flex items-end gap-2">
+            <p className="text-4xl font-black">{tasksLoading ? "-" : `${produtividade}%`}</p>
+          </div>
+          {/* Mini barra de progresso branca */}
+          <div className="w-full bg-indigo-800 h-1.5 rounded-full mt-4">
+            <div 
+              className="bg-white h-1.5 rounded-full transition-all duration-500"
+              style={{ width: `${produtividade}%` }}
+            ></div>
+          </div>
         </div>
       </div>
 
-      {/* Tarefas de Hoje */}
-      <section>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[var(--color-text)]">Tarefas de Hoje</h2>
-          <Link href="/tarefas" className="flex items-center gap-1.5 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] px-4 py-2 rounded-lg transition-colors">
-            <Plus size={16} />
-            Nova Tarefa
-          </Link>
-        </div>
-
-        {tasksLoading ? (
-          <div className="animate-pulse flex flex-col gap-3">
-            {[1, 2].map(i => <div key={i} className="h-[72px] bg-white border border-gray-100 rounded-xl"></div>)}
+{/* --- MÓDULO INFERIOR: LEMBRETES E CALENDÁRIO --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Coluna Esquerda: Lembretes */}
+        <section className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-lg font-bold text-slate-800">Sua Agenda Hoje</h2>
+            <Link href="/tarefas" className="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
+              Ver tudo &rarr;
+            </Link>
           </div>
-        ) : tarefasDeHoje.length === 0 ? (
-          <EmptyState 
-            icon={<CheckSquarePlaceholder />} 
-            title="Seu dia está livre!" 
-            description="Você não tem tarefas agendadas para hoje. Aproveite para descansar ou planejar algo novo."
-          />
-        ) : (
-          <div className="space-y-3">
-            {tarefasDeHoje.map(task => (
-              <TaskCard 
-                key={task.id} 
-                task={task} 
-                onToggle={toggleTask} 
-                onDelete={deleteTask} 
-              />
+
+          {tasksLoading ? (
+            <p className="text-slate-400 font-medium">Carregando...</p>
+          ) : lembretesDeHoje.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+              <p className="text-slate-400 font-medium">Nenhum compromisso pendente.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {lembretesDeHoje.map(task => (
+                <div key={task.id} className="group flex items-center justify-between p-4 bg-white hover:bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all rounded-2xl">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
+                    <div>
+                      <h3 className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{task.title}</h3>
+                      <p className="text-xs text-slate-400 font-medium mt-0.5">{task.description || "Tarefa"}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Coluna Direita: Mini Calendário (Agosto 2026) */}
+        <section className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 flex flex-col justify-center">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-base font-bold text-slate-800">Agosto</h2>
+            <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">2026</span>
+          </div>
+          
+          <div className="grid grid-cols-7 gap-y-4 gap-x-1 text-center mb-2">
+            {['D','S','T','Q','Q','S','S'].map((d, index) => (
+              <div key={index} className="text-[10px] font-black text-slate-300">{d}</div>
+            ))}
+            
+            {/* Offset para começar no Sábado (Agosto 2026) */}
+            {Array.from({length: 6}).map((_, i) => <div key={`empty-${i}`}></div>)}
+            
+            {/* Dias do mês */}
+            {Array.from({ length: 31 }, (_, i) => i + 1).map(dia => (
+              <div 
+                key={dia} 
+                className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full text-sm font-medium transition-all cursor-pointer
+                  ${dia === new Date().getDate() 
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' 
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-indigo-600'}`}
+              >
+                {dia}
+              </div>
             ))}
           </div>
-        )}
-      </section>
-    </div>
-  );
-}
+        </section>
 
-function CheckSquarePlaceholder() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m9 11 3 3L22 4"/>
-      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-    </svg>
+      </div>
+    </div>
   );
 }
