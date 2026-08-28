@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTasks } from "@/hooks/useTasks";
-import { Plus, CalendarDays } from "lucide-react";
+import { Plus, CalendarDays, Search } from "lucide-react";
 import { TaskCard } from "@/components/tarefas/TaskCard";
 import { TaskForm } from "@/components/tarefas/TaskForm";
 import { Modal } from "@/components/ui/Modal";
@@ -11,6 +11,7 @@ export default function TarefasPage() {
   const { tasks, loading, createTask, toggleTask, deleteTask } = useTasks();
   const [showForm, setShowForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const diasOrdem = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
   const hoje = diasOrdem[new Date().getDay()];
@@ -20,16 +21,15 @@ export default function TarefasPage() {
     const diff = diasOrdem.indexOf(dia) - today.getDay();
     const dateForDay = new Date(today);
     dateForDay.setDate(today.getDate() + diff);
-    // Format to YYYY-MM-DDTHH:mm
     const dateString = new Date(dateForDay.getTime() - (dateForDay.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-    
+
     setSelectedDate(dateString);
     setShowForm(true);
   }
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto w-full pb-20">
-      <header className="flex items-center justify-between mb-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-text)] flex items-center gap-3 tracking-tight">
             <div className="bg-[var(--color-primary-light)] p-2 rounded-xl text-[var(--color-primary)]">
@@ -42,16 +42,30 @@ export default function TarefasPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setSelectedDate("");
-            setShowForm(true);
-          }}
-          className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-5 py-2.5 rounded-xl transition-colors font-medium shadow-sm hover:shadow-md"
-        >
-          <Plus size={20} />
-          Nova Tarefa
-        </button>
+        <div className="flex items-center gap-4">
+          {/* Barra de Pesquisa */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              placeholder="Pesquisar tarefas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all w-full md:w-64 shadow-sm text-sm"
+            />
+          </div>
+
+          <button
+            onClick={() => {
+              setSelectedDate("");
+              setShowForm(true);
+            }}
+            className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-5 py-2.5 rounded-xl transition-colors font-medium shadow-sm hover:shadow-md whitespace-nowrap"
+          >
+            <Plus size={20} />
+            Nova Tarefa
+          </button>
+        </div>
       </header>
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title="Nova Tarefa">
@@ -75,6 +89,15 @@ export default function TarefasPage() {
         ) : (
           diasOrdem.map((dia) => {
             const lista = tasks[dia] || [];
+            
+            // Lógica de filtro em tempo real
+            const listaFiltrada = searchTerm.trim() !== "" 
+              ? lista.filter((task) => 
+                  task.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                  task.description?.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+              : lista;
+
             const isToday = dia === hoje;
 
             return (
@@ -90,7 +113,7 @@ export default function TarefasPage() {
                     {dia}
                     {isToday && <span className="w-2 h-2 rounded-full bg-[var(--color-primary)]"></span>}
                   </h3>
-                  
+
                   <button 
                     onClick={() => openFormForDay(dia)}
                     className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] rounded-md"
@@ -98,7 +121,7 @@ export default function TarefasPage() {
                   >
                     <Plus size={16} strokeWidth={2.5} />
                   </button>
-                  
+
                   {isToday && (
                     <div className="absolute -bottom-[2px] left-0 right-0 h-[2px] bg-[var(--color-primary)] rounded-full"></div>
                   )}
@@ -106,12 +129,12 @@ export default function TarefasPage() {
 
                 {/* Lista de tarefas */}
                 <div className="flex-1 flex flex-col gap-2.5">
-                  {lista.length === 0 ? (
-                    <div className="h-24 flex items-center justify-center border-2 border-dashed border-[var(--color-border)] rounded-xl text-xs text-[var(--color-text-secondary)] opacity-60">
-                      Nenhuma tarefa
+                  {listaFiltrada.length === 0 ? (
+                    <div className="h-24 flex flex-col items-center justify-center border-2 border-dashed border-[var(--color-border)] rounded-xl text-xs text-[var(--color-text-secondary)] opacity-60">
+                      {searchTerm ? "Nenhuma tarefa encontrada" : "Nenhuma tarefa"}
                     </div>
                   ) : (
-                    lista.map((task) => (
+                    listaFiltrada.map((task) => (
                       <TaskCard
                         key={task.id}
                         task={task}
