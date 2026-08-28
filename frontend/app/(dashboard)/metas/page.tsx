@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMetas } from "@/hooks/useMetas";
-import { Plus, Target } from "lucide-react";
+import { Plus, Target, Search } from "lucide-react";
 import { MetaCard } from "@/components/metas/MetaCard";
 import { MetaForm } from "@/components/metas/MetaForm";
 import { Modal } from "@/components/ui/Modal";
@@ -12,6 +12,7 @@ export default function MetasPage() {
   const { metas, loading, createMeta, cycleStatus, deleteMeta } = useMetas();
   const [showForm, setShowForm] = useState(false);
   const [selectedPeriodo, setSelectedPeriodo] = useState("semana");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const periodosOrder = [
     { key: "Semana", value: "semana" },
@@ -26,7 +27,7 @@ export default function MetasPage() {
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto w-full pb-20">
-      <header className="flex items-center justify-between mb-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-text)] flex items-center gap-3 tracking-tight">
             <div className="bg-purple-50 p-2 rounded-xl text-purple-600">
@@ -39,13 +40,25 @@ export default function MetasPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => openFormForPeriodo("semana")}
-          className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-5 py-2.5 rounded-xl transition-colors font-medium shadow-sm hover:shadow-md"
-        >
-          <Plus size={20} />
-          Nova Meta
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="relative w-full md:w-auto">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Buscar metas..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full md:w-64 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-shadow text-sm text-[var(--color-text)]"
+            />
+          </div>
+          <button
+            onClick={() => openFormForPeriodo("semana")}
+            className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-5 py-2.5 rounded-xl transition-colors font-medium shadow-sm hover:shadow-md whitespace-nowrap"
+          >
+            <Plus size={20} />
+            Nova Meta
+          </button>
+        </div>
       </header>
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title="Nova Meta">
@@ -67,7 +80,11 @@ export default function MetasPage() {
           ))
         ) : (
           periodosOrder.map((p) => {
-            const lista = metas[p.key] || [];
+            const rawLista = metas[p.key] || [];
+            const lista = rawLista.filter(meta => 
+              meta.descricao.toLowerCase().includes(searchTerm.toLowerCase()) || 
+              (meta.categoria && meta.categoria.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
 
             return (
               <div key={p.key} className="flex flex-col">
