@@ -32,7 +32,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_25_193755) do
     t.datetime "due_date"
     t.string "title"
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
