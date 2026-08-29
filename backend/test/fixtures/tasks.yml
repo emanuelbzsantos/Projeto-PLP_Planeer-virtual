@@ -14,6 +14,16 @@ two:
   completed: true
   user: usuario_teste
 
+tarefa_recorrente:
+  title: Revisar código semanal
+  description: Lembrete semanal de code review
+  due_date: 2026-08-24 09:00:00
+  completed: false
+  recurring: true
+  recurrence_type: weekly
+  recurring_days: "{Segunda-feira,Quinta-feira}"
+  user: usuario_teste
+
 tarefa_outro_usuario:
   title: Tarefa do outro
   description: Não deve aparecer para usuario_teste

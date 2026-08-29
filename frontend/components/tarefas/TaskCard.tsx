@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Check } from 'lucide-react';
+import { Trash2, Check, Repeat } from 'lucide-react';
 import type { Task } from '@/types';
 
 interface TaskCardProps {
@@ -41,6 +41,14 @@ export function TaskCard({ task, onToggle, onDelete }: TaskCardProps) {
           }`}>
             {task.description}
           </p>
+        )}
+        {task.recurring && (
+          <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100/60">
+              <Repeat size={11} strokeWidth={2.5} />
+              Semanal
+            </span>
+          </div>
         )}
       </div>
 

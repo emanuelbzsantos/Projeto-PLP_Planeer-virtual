@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTasks } from "@/hooks/useTasks";
 import { useMetas } from "@/hooks/useMetas";
-import { CheckCircle2, Clock, Target, TrendingUp, Calendar, ArrowRight } from "lucide-react";
+import { CheckCircle2, Clock, Target, TrendingUp, Calendar, ArrowRight, Repeat } from "lucide-react";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -149,7 +149,15 @@ export default function Dashboard() {
                   <div className="flex items-center gap-4">
                     <div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
                     <div>
-                      <h3 className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{task.title}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{task.title}</h3>
+                        {task.recurring && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                            <Repeat size={10} strokeWidth={2.5} />
+                            Semanal
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-slate-400 font-medium mt-0.5">{task.description || "Tarefa"}</p>
                     </div>
                   </div>
