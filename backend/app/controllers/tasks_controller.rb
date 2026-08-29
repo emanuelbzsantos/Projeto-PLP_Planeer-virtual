@@ -76,6 +76,7 @@ class TasksController < ApplicationController
       :description,
       :due_date,
       :completed,
+      :categoria,
       :recurring,
       :recurrence_type,
       { recurring_days: [] }

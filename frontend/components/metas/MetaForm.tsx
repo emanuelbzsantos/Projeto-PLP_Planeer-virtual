@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CATEGORIES } from '@/lib/categories';
 
 interface MetaFormProps {
   onSubmit: (meta: { descricao: string; categoria: string; status: string; periodo: string }) => Promise<void>;
@@ -8,7 +9,7 @@ interface MetaFormProps {
 
 export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana' }: MetaFormProps) {
   const [descricao, setDescricao] = useState('');
-  const [categoria, setCategoria] = useState('');
+  const [categoria, setCategoria] = useState('Pessoal');
   const [periodo, setPeriodo] = useState(defaultPeriodo);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,15 +48,17 @@ export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana' }: Meta
       
       <div>
         <label htmlFor="categoria" className="block text-sm font-medium text-[var(--color-text)] mb-1">Categoria</label>
-        <input
+        <select
           id="categoria"
-          type="text"
           value={categoria}
           onChange={(e) => setCategoria(e.target.value)}
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
-          placeholder="Ex: Estudos"
+          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all bg-white"
           required
-        />
+        >
+          {CATEGORIES.map((category) => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
       </div>
       
       <div>
