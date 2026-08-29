@@ -21,7 +21,14 @@ export function useTasks() {
     fetchTasks();
   }, [fetchTasks]);
 
-  const createTask = async (task: { title: string; description: string; due_date: string }) => {
+  const createTask = async (task: {
+    title: string;
+    description: string;
+    due_date: string;
+    recurring?: boolean;
+    recurrence_type?: 'single' | 'weekly';
+    recurring_days?: string[];
+  }) => {
     await apiPost('/tasks', { task });
     await fetchTasks();
   };

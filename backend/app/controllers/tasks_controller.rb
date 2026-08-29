@@ -1,17 +1,15 @@
 class TasksController < ApplicationController
   before_action :set_task, only: %i[show edit update destroy toggle]
 
-  # Listar as tarefas do usuário autenticado organizadas por dia da semana
+  # Listar as tarefas do usuário autenticado organizadas por dia da semana (inclui lembretes únicos e recorrentes)
   def index
-    dias_semana = %w[Domingo Segunda-feira Terça-feira Quarta-feira Quinta-feira Sexta-feira Sábado]
+    dias_semana = Task::DIAS_SEMANA
+    user_tasks = current_user.tasks
 
-    # Agrupa apenas tarefas com data definida do usuário autenticado
-    tarefas_agrupadas = current_user.tasks
-                                    .where.not(due_date: nil)
-                                    .group_by { |task| dias_semana[task.due_date.wday] }
-
-    # Garante todos os 7 dias presentes no JSON de retorno
-    @tarefas_por_dia = dias_semana.index_with { |dia| tarefas_agrupadas[dia] || [] }
+    # Garante que tarefas únicas com data e tarefas recorrentes nos dias corretos sejam listadas
+    @tarefas_por_dia = dias_semana.index_with do |dia|
+      user_tasks.select { |task| task.occurs_on_day?(dia) }
+    end
 
     render json: @tarefas_por_dia
   end
@@ -73,6 +71,14 @@ class TasksController < ApplicationController
 
   # Validação de parâmetros fortes (Rails 8)
   def task_params
-    params.expect(task: %i[title description due_date completed])
+    params.expect(task: [
+      :title,
+      :description,
+      :due_date,
+      :completed,
+      :recurring,
+      :recurrence_type,
+      { recurring_days: [] }
+    ])
   end
 end
