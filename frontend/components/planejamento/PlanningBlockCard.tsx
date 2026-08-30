@@ -1,4 +1,4 @@
-import { Trash2, ListChecks, Clock } from 'lucide-react';
+import { Trash2, ListChecks } from 'lucide-react';
 import type { PlanningBlock, Task } from '@/types';
 
 interface PlanningBlockCardProps {
@@ -34,15 +34,10 @@ export function PlanningBlockCard({ block, task, onDelete }: PlanningBlockCardPr
             >
               {displayTitle}
             </h3>
-            {task ? (
+            {task && (
               <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100/60 shrink-0">
                 <ListChecks size={11} strokeWidth={2.5} />
                 Tarefa vinculada
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
-                <Clock size={11} strokeWidth={2.5} />
-                Livre
               </span>
             )}
           </div>
