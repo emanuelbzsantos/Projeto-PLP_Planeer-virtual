@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, CheckSquare, Target, CalendarClock, Settings, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"; import { apiDelete } from "@/hooks/useApi"
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter(); async function handleLogout() { try { await apiDelete("/logout"); } catch (e) { console.error("Erro ao fazer logout", e); } finally { localStorage.removeItem("auth_token"); localStorage.removeItem("user"); router.push("/login"); } }
 
   const navItems = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -43,7 +45,7 @@ export default function Sidebar() {
         <Link href="/configuracoes" title="Configurações" className="p-3 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 rounded-full transition-all">
           <Settings size={22} />
         </Link>
-        <button title="Sair da conta" className="p-3 text-slate-400 hover:bg-red-50 hover:text-red-500 rounded-full transition-all mt-2">
+        <button title="Sair da conta" className="p-3 text-slate-400 hover:bg-red-50 hover:text-red-500 rounded-full transition-all mt-2" onClick={handleLogout}>
           <LogOut size={22} />
         </button>
       </div>
