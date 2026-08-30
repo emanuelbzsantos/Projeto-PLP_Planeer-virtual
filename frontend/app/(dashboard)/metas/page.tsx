@@ -6,10 +6,12 @@ import { Plus, Target, Search, X } from "lucide-react";
 import { MetaCard } from "@/components/metas/MetaCard";
 import { MetaForm } from "@/components/metas/MetaForm";
 import { Modal } from "@/components/ui/Modal";
+import type { Meta } from "@/types";
 
 export default function MetasPage() {
-  const { metas, loading, createMeta, cycleStatus, deleteMeta } = useMetas();
+  const { metas, loading, createMeta, updateMeta, cycleStatus, deleteMeta } = useMetas();
   const [showForm, setShowForm] = useState(false);
+  const [editingMeta, setEditingMeta] = useState<Meta | null>(null);
   const [selectedPeriodo, setSelectedPeriodo] = useState("semana");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -19,9 +21,26 @@ export default function MetasPage() {
     { key: "Ano", value: "ano", title: "Metas do Ano", subtitle: "Grandes objetivos" }
   ];
 
-  function openFormForPeriodo(periodoValue: string) {
+  function openCreateForm(periodoValue: string) {
+    setEditingMeta(null);
     setSelectedPeriodo(periodoValue);
     setShowForm(true);
+  }
+
+  function handleEditMeta(meta: Meta) {
+    setEditingMeta(meta);
+    setSelectedPeriodo(meta.periodo);
+    setShowForm(true);
+  }
+
+  async function handleFormSubmit(metaData: { descricao: string; categoria: string; status: string; periodo: string }) {
+    if (editingMeta) {
+      await updateMeta(editingMeta.id, metaData);
+    } else {
+      await createMeta(metaData);
+    }
+    setShowForm(false);
+    setEditingMeta(null);
   }
 
   return (
@@ -65,7 +84,7 @@ export default function MetasPage() {
           </div>
 
           <button
-            onClick={() => openFormForPeriodo("semana")}
+            onClick={() => openCreateForm("semana")}
             className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-4 py-2 rounded-xl transition-all font-medium text-sm shadow-xs hover:shadow-sm whitespace-nowrap cursor-pointer"
           >
             <Plus size={18} />
@@ -74,10 +93,15 @@ export default function MetasPage() {
         </div>
       </header>
 
-      <Modal open={showForm} onClose={() => setShowForm(false)} title="Nova Meta">
+      <Modal 
+        open={showForm} 
+        onClose={() => { setShowForm(false); setEditingMeta(null); }} 
+        title={editingMeta ? "Editar Meta" : "Nova Meta"}
+      >
         <MetaForm 
-          onSubmit={async (m) => { await createMeta(m); setShowForm(false); }} 
-          onCancel={() => setShowForm(false)} 
+          initialMeta={editingMeta}
+          onSubmit={handleFormSubmit} 
+          onCancel={() => { setShowForm(false); setEditingMeta(null); }} 
           defaultPeriodo={selectedPeriodo}
         />
       </Modal>
@@ -112,7 +136,7 @@ export default function MetasPage() {
                     {lista.length}
                   </span>
                   <button 
-                    onClick={() => openFormForPeriodo(p.value)}
+                    onClick={() => openCreateForm(p.value)}
                     className="p-1 text-slate-400 hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] rounded-md transition-colors cursor-pointer"
                     title={`Adicionar meta para ${p.key}`}
                   >
@@ -140,6 +164,7 @@ export default function MetasPage() {
                       key={meta.id}
                       meta={meta}
                       onCycleStatus={cycleStatus}
+                      onEdit={handleEditMeta}
                       onDelete={deleteMeta}
                     />
                   ))

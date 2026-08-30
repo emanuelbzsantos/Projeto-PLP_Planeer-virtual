@@ -1,21 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CATEGORIES } from '@/lib/categories';
 import { FormInput, FormSelect } from '@/components/ui/FormField';
+import type { Meta } from '@/types';
 
 interface MetaFormProps {
   onSubmit: (meta: { descricao: string; categoria: string; status: string; periodo: string }) => Promise<void>;
   onCancel: () => void;
   defaultPeriodo?: string;
+  initialMeta?: Meta | null;
 }
 
 const MAX_DESCRICAO_LENGTH = 100;
 
-export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana' }: MetaFormProps) {
+export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana', initialMeta = null }: MetaFormProps) {
   const [descricao, setDescricao] = useState('');
   const [categoria, setCategoria] = useState('Pessoal');
   const [periodo, setPeriodo] = useState(defaultPeriodo);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ descricao?: string }>({});
+
+  useEffect(() => {
+    if (initialMeta) {
+      setDescricao(initialMeta.descricao || '');
+      setCategoria(initialMeta.categoria || 'Pessoal');
+      setPeriodo(initialMeta.periodo || defaultPeriodo);
+    } else {
+      setDescricao('');
+      setCategoria('Pessoal');
+      setPeriodo(defaultPeriodo);
+    }
+    setErrors({});
+  }, [initialMeta, defaultPeriodo]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,12 +46,9 @@ export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana' }: Meta
       await onSubmit({ 
         descricao: descricao.trim().slice(0, MAX_DESCRICAO_LENGTH), 
         categoria, 
-        status: 'nao_cumprida', 
+        status: initialMeta?.status || 'nao_cumprida', 
         periodo 
       });
-      setDescricao('');
-      setCategoria('Pessoal');
-      if (!defaultPeriodo) setPeriodo('semana');
       onCancel();
     } catch (error) {
       console.error(error);
@@ -99,10 +111,10 @@ export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana' }: Meta
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors flex items-center justify-center min-w-[110px] cursor-pointer shadow-xs"
+          className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors flex items-center justify-center min-w-[120px] cursor-pointer shadow-xs"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Salvando...' : 'Criar Meta'}
+          {isSubmitting ? 'Salvando...' : initialMeta ? 'Salvar Alterações' : 'Criar Meta'}
         </button>
       </div>
     </form>

@@ -1,9 +1,10 @@
-import { Trash2, ListChecks } from 'lucide-react';
+import { Trash2, Pencil, ListChecks } from 'lucide-react';
 import type { PlanningBlock, Task } from '@/types';
 
 interface PlanningBlockCardProps {
   block: PlanningBlock;
   task?: Task;
+  onEdit: (block: PlanningBlock) => void;
   onDelete: (id: number) => void;
 }
 
@@ -12,7 +13,7 @@ function formatTime(datetime: string) {
   return match ? `${match[1]}:${match[2]}` : '--:--';
 }
 
-export function PlanningBlockCard({ block, task, onDelete }: PlanningBlockCardProps) {
+export function PlanningBlockCard({ block, task, onEdit, onDelete }: PlanningBlockCardProps) {
   const displayTitle = task?.title ?? block.title ?? 'Sem título';
 
   return (
@@ -44,13 +45,23 @@ export function PlanningBlockCard({ block, task, onDelete }: PlanningBlockCardPr
         </div>
       </div>
 
-      <button
-        onClick={() => onDelete(block.id)}
-        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl shrink-0 ml-2 cursor-pointer"
-        title="Remover bloco"
-      >
-        <Trash2 size={16} />
-      </button>
+      {/* Botões de Ação na Vertical (Editar e Excluir) */}
+      <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
+        <button
+          onClick={() => onEdit(block)}
+          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+          title="Editar bloco"
+        >
+          <Pencil size={14} />
+        </button>
+        <button
+          onClick={() => onDelete(block.id)}
+          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+          title="Remover bloco"
+        >
+          <Trash2 size={14} />
+        </button>
+      </div>
     </div>
   );
 }

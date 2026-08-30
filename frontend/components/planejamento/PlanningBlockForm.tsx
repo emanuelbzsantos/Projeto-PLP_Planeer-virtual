@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Clock, ListChecks } from 'lucide-react';
-import type { Task } from '@/types';
+import type { Task, PlanningBlock } from '@/types';
 import { FormInput, FormSelect } from '@/components/ui/FormField';
 
 interface PlanningBlockFormProps {
   date: string;
   tasks: Task[];
+  initialTaskId?: number | null;
+  initialBlock?: PlanningBlock | null;
   onSubmit: (block: {
     date: string;
     start_time: string;
@@ -30,7 +32,20 @@ function combineDateTime(date: string, time: string) {
   return `${date}T${time}:00`;
 }
 
-export function PlanningBlockForm({ date, tasks, onSubmit, onCancel }: PlanningBlockFormProps) {
+function extractTime(datetimeStr?: string, defaultTime = '08:00') {
+  if (!datetimeStr) return defaultTime;
+  const match = datetimeStr.match(/T(\d{2}):(\d{2})/);
+  return match ? `${match[1]}:${match[2]}` : defaultTime;
+}
+
+export function PlanningBlockForm({ 
+  date, 
+  tasks, 
+  initialTaskId, 
+  initialBlock,
+  onSubmit, 
+  onCancel 
+}: PlanningBlockFormProps) {
   const [mode, setMode] = useState<'texto' | 'tarefa'>('texto');
   const [title, setTitle] = useState('');
   const [taskId, setTaskId] = useState<string>('');
@@ -38,6 +53,35 @@ export function PlanningBlockForm({ date, tasks, onSubmit, onCancel }: PlanningB
   const [endTime, setEndTime] = useState('08:30');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ title?: string; taskId?: string; time?: string }>({});
+
+  useEffect(() => {
+    if (initialBlock) {
+      if (initialBlock.task_id) {
+        setMode('tarefa');
+        setTaskId(String(initialBlock.task_id));
+        setTitle('');
+      } else {
+        setMode('texto');
+        setTitle(initialBlock.title || '');
+        setTaskId('');
+      }
+      setStartTime(extractTime(initialBlock.start_time, '08:00'));
+      setEndTime(extractTime(initialBlock.end_time, '08:30'));
+    } else if (initialTaskId) {
+      setMode('tarefa');
+      setTaskId(String(initialTaskId));
+      setTitle('');
+      setStartTime('08:00');
+      setEndTime('08:30');
+    } else {
+      setMode('texto');
+      setTaskId('');
+      setTitle('');
+      setStartTime('08:00');
+      setEndTime('08:30');
+    }
+    setErrors({});
+  }, [initialBlock, initialTaskId]);
 
   function applyPreset(preset: typeof DURATION_PRESETS[number]) {
     if ('minutes' in preset && typeof preset.minutes === 'number') {
@@ -88,8 +132,6 @@ export function PlanningBlockForm({ date, tasks, onSubmit, onCancel }: PlanningB
         task_id: mode === 'tarefa' ? Number(taskId) : null,
       });
 
-      setTitle('');
-      setTaskId('');
       onCancel();
     } catch (error) {
       console.error(error);
@@ -240,7 +282,7 @@ export function PlanningBlockForm({ date, tasks, onSubmit, onCancel }: PlanningB
           className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors flex items-center justify-center min-w-[120px] cursor-pointer shadow-xs"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Salvando...' : 'Adicionar Bloco'}
+          {isSubmitting ? 'Salvando...' : initialBlock ? 'Salvar Alterações' : 'Adicionar Bloco'}
         </button>
       </div>
     </form>
