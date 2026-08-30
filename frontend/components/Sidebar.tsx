@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CheckSquare, Target, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, CheckSquare, Target, CalendarClock, Settings, LogOut } from "lucide-react"
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -11,6 +11,7 @@ export default function Sidebar() {
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Tarefas", href: "/tarefas", icon: CheckSquare },
     { name: "Metas", href: "/metas", icon: Target },
+    { name: "Planejamento", href: "/planejamento", icon: CalendarClock },
   ];
 
   return (

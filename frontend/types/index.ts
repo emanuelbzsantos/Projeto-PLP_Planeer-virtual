@@ -26,5 +26,15 @@ export interface UserProfile {
   email: string;
 }
 
+export interface PlanningBlock {
+  id: number;
+  date: string;
+  start_time: string;
+  end_time: string;
+  title: string;
+  task_id?: number;
+}
+
 export type TasksByDay = Record<string, Task[]>;
 export type MetasByPeriod = Record<string, Meta[]>;
+
