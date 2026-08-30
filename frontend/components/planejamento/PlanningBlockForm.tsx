@@ -37,7 +37,7 @@ export function PlanningBlockForm({ date, tasks, onSubmit, onCancel }: PlanningB
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function applyPreset(preset: typeof DURATION_PRESETS[number]) {
-    if ('minutes' in preset) {
+    if ('minutes' in preset && typeof preset.minutes === 'number') {
       const [h, m] = startTime.split(':').map(Number);
       const totalMinutes = h * 60 + m + preset.minutes;
       const endH = Math.floor(totalMinutes / 60) % 24;

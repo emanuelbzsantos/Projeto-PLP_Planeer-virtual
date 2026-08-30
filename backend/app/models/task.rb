@@ -4,7 +4,8 @@ class Task < ApplicationRecord
 
   DIAS_SEMANA = %w[Domingo Segunda-feira Terça-feira Quarta-feira Quinta-feira Sexta-feira Sábado].freeze
 
-  validates :title, presence: true
+  validates :title, presence: true, length: { maximum: 100 }
+  validates :description, length: { maximum: 500 }, allow_blank: true
   validates :categoria, presence: true
   validates :recurrence_type, inclusion: { in: %w[single weekly] }, allow_blank: true
 

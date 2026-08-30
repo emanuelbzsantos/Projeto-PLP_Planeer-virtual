@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Calendar, Repeat, Bell, Check } from 'lucide-react';
-import type { RecurrenceType } from '@/types';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Repeat, Bell, Check, AlertCircle } from 'lucide-react';
+import type { Task, RecurrenceType } from '@/types';
 import { CATEGORIES } from '@/lib/categories';
 
 interface TaskFormProps {
@@ -15,7 +15,11 @@ interface TaskFormProps {
   }) => Promise<void>;
   onCancel: () => void;
   defaultDate?: string;
+  initialTask?: Task | null;
 }
+
+const MAX_TITLE_LENGTH = 100;
+const MAX_DESCRIPTION_LENGTH = 500;
 
 const DIAS_SEMANA = [
   { key: 'Domingo', label: 'Dom', full: 'Domingo' },
@@ -27,23 +31,58 @@ const DIAS_SEMANA = [
   { key: 'Sábado', label: 'Sáb', full: 'Sábado' },
 ];
 
-export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps) {
+function formatForDatetimeLocal(dateStr?: string): string {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } catch {
+    return '';
+  }
+}
+
+export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = null }: TaskFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState(defaultDate);
-  const [categoria, setCategoria] = useState('Pessoal');
+  const [dueDate, setDueDate] = useState('');
+  const [categoria, setCategoria] = useState<string>('Pessoal');
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('single');
-  const [selectedDays, setSelectedDays] = useState<string[]>(() => {
-    if (defaultDate) {
-      const dateObj = new Date(defaultDate);
-      if (!isNaN(dateObj.getTime())) {
-        const dayName = DIAS_SEMANA[dateObj.getDay()]?.full;
-        return dayName ? [dayName] : [];
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{ title?: string; dueDate?: string }>({});
+
+  useEffect(() => {
+    setErrors({});
+    if (initialTask) {
+      setTitle(initialTask.title || '');
+      setDescription(initialTask.description || '');
+      setCategoria(initialTask.categoria || 'Pessoal');
+      setDueDate(formatForDatetimeLocal(initialTask.due_date));
+      const isWeekly = initialTask.recurrence_type === 'weekly' || !!initialTask.recurring;
+      setRecurrenceType(isWeekly ? 'weekly' : 'single');
+      setSelectedDays(initialTask.recurring_days || []);
+    } else {
+      setTitle('');
+      setDescription('');
+      setCategoria('Pessoal');
+      setDueDate(defaultDate ? defaultDate.slice(0, 16) : '');
+      setRecurrenceType('single');
+
+      if (defaultDate) {
+        const dateObj = new Date(defaultDate);
+        if (!isNaN(dateObj.getTime())) {
+          const dayName = DIAS_SEMANA[dateObj.getDay()]?.full;
+          setSelectedDays(dayName ? [dayName] : []);
+        } else {
+          setSelectedDays([]);
+        }
+      } else {
+        setSelectedDays([]);
       }
     }
-    return [];
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  }, [initialTask, defaultDate]);
 
   function handleSelectWeekly() {
     setRecurrenceType('weekly');
@@ -66,12 +105,24 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title || !dueDate) return;
+    
+    const newErrors: { title?: string; dueDate?: string } = {};
+    if (!title.trim()) {
+      newErrors.title = 'O título da tarefa não pode ficar em branco.';
+    }
+    if (!dueDate) {
+      newErrors.dueDate = 'A data e o horário são obrigatórios.';
+    }
 
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setIsSubmitting(true);
     try {
       const isRecurring = recurrenceType === 'weekly';
-      // Se for recorrente e nenhum dia foi marcado, usa o dia da data selecionada
       let finalDays = selectedDays;
       if (isRecurring && finalDays.length === 0) {
         const dateObj = new Date(dueDate);
@@ -80,8 +131,8 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
       }
 
       await onSubmit({
-        title,
-        description,
+        title: title.trim().slice(0, MAX_TITLE_LENGTH),
+        description: description.trim().slice(0, MAX_DESCRIPTION_LENGTH),
         due_date: dueDate,
         categoria,
         recurring: isRecurring,
@@ -89,11 +140,6 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
         recurring_days: isRecurring ? finalDays : [],
       });
 
-      setTitle('');
-      setDescription('');
-      if (!defaultDate) setDueDate('');
-      setRecurrenceType('single');
-      setSelectedDays([]);
       onCancel();
     } catch (error) {
       console.error(error);
@@ -103,22 +149,46 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      {/* Campo Título */}
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-[var(--color-text)] mb-1">
-          Título
-        </label>
+        <div className="flex items-center justify-between mb-1">
+          <label htmlFor="title" className="block text-sm font-medium text-[var(--color-text)]">
+            Título <span className="text-rose-500">*</span>
+          </label>
+          <span className={`text-[11px] ${
+            title.length >= MAX_TITLE_LENGTH ? 'text-rose-500 font-semibold' : 'text-slate-400'
+          }`}>
+            {title.length}/{MAX_TITLE_LENGTH}
+          </span>
+        </div>
         <input
           id="title"
           type="text"
+          maxLength={MAX_TITLE_LENGTH}
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
+          onChange={(e) => {
+            setTitle(e.target.value);
+            if (errors.title && e.target.value.trim()) {
+              setErrors(prev => ({ ...prev, title: undefined }));
+            }
+          }}
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-all text-sm ${
+            errors.title 
+              ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500 bg-rose-50/20' 
+              : 'border-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)]'
+          }`}
           placeholder="Ex: Reunião de alinhamento"
-          required
         />
+        {errors.title && (
+          <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1 font-medium animate-in fade-in duration-150">
+            <AlertCircle size={13} className="shrink-0" />
+            {errors.title}
+          </p>
+        )}
       </div>
 
+      {/* Campo Categoria */}
       <div>
         <label htmlFor="task_categoria" className="block text-sm font-medium text-[var(--color-text)] mb-1">
           Categoria
@@ -130,18 +200,27 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
           className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all bg-white text-sm"
           required
         >
-          {CATEGORIES.map((category) => (
-            <option key={category} value={category}>{category}</option>
+          {CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
       </div>
 
+      {/* Campo Descrição */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-[var(--color-text)] mb-1">
-          Descrição (opcional)
-        </label>
+        <div className="flex items-center justify-between mb-1">
+          <label htmlFor="description" className="block text-sm font-medium text-[var(--color-text)]">
+            Descrição (opcional)
+          </label>
+          <span className={`text-[11px] ${
+            description.length >= MAX_DESCRIPTION_LENGTH ? 'text-rose-500 font-semibold' : 'text-slate-400'
+          }`}>
+            {description.length}/{MAX_DESCRIPTION_LENGTH}
+          </span>
+        </div>
         <textarea
           id="description"
+          maxLength={MAX_DESCRIPTION_LENGTH}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all resize-none h-20 text-sm"
@@ -149,18 +228,33 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
         />
       </div>
 
+      {/* Campo Data e Hora */}
       <div>
         <label htmlFor="due_date" className="block text-sm font-medium text-[var(--color-text)] mb-1">
-          Data e Hora
+          Data e Hora <span className="text-rose-500">*</span>
         </label>
         <input
           id="due_date"
           type="datetime-local"
           value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
-          required
+          onChange={(e) => {
+            setDueDate(e.target.value);
+            if (errors.dueDate && e.target.value) {
+              setErrors(prev => ({ ...prev, dueDate: undefined }));
+            }
+          }}
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-all text-sm ${
+            errors.dueDate 
+              ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500 bg-rose-50/20' 
+              : 'border-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)]'
+          }`}
         />
+        {errors.dueDate && (
+          <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1 font-medium animate-in fade-in duration-150">
+            <AlertCircle size={13} className="shrink-0" />
+            {errors.dueDate}
+          </p>
+        )}
       </div>
 
       {/* Seção de Tipo de Lembrete / Recorrência */}
@@ -239,20 +333,19 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 rounded-lg transition-colors"
+          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           disabled={isSubmitting}
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors flex items-center justify-center min-w-[110px]"
-          disabled={isSubmitting || !title || !dueDate}
+          className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors flex items-center justify-center min-w-[120px] cursor-pointer shadow-xs"
+          disabled={isSubmitting}
         >
-          {isSubmitting ? 'Salvando...' : 'Criar Lembrete'}
+          {isSubmitting ? 'Salvando...' : initialTask ? 'Salvar Alterações' : 'Criar Lembrete'}
         </button>
       </div>
     </form>
   );
 }
-
