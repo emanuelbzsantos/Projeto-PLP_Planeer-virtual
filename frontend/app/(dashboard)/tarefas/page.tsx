@@ -2,54 +2,52 @@
 
 import { useState, useMemo } from "react";
 import { useTasks } from "@/hooks/useTasks";
-import { Plus, CalendarDays, Search, X } from "lucide-react";
+import { Plus, Search, CalendarDays, X, CheckCircle2, Clock } from "lucide-react";
 import { TaskCard } from "@/components/tarefas/TaskCard";
 import { TaskForm } from "@/components/tarefas/TaskForm";
 import { Modal } from "@/components/ui/Modal";
 import type { Task } from "@/types";
 
-const DIAS_CONFIG = [
-  { key: "Domingo", short: "Domingo", full: "Domingo" },
-  { key: "Segunda-feira", short: "Segunda", full: "Segunda-feira" },
-  { key: "Terça-feira", short: "Terça", full: "Terça-feira" },
-  { key: "Quarta-feira", short: "Quarta", full: "Quarta-feira" },
-  { key: "Quinta-feira", short: "Quinta", full: "Quinta-feira" },
-  { key: "Sexta-feira", short: "Sexta", full: "Sexta-feira" },
-  { key: "Sábado", short: "Sábado", full: "Sábado" },
+const DIAS_SEMANA = [
+  { full: "Domingo", short: "Dom" },
+  { full: "Segunda-feira", short: "Seg" },
+  { full: "Terça-feira", short: "Ter" },
+  { full: "Quarta-feira", short: "Qua" },
+  { full: "Quinta-feira", short: "Qui" },
+  { full: "Sexta-feira", short: "Sex" },
+  { full: "Sábado", short: "Sáb" },
 ];
 
 export default function TarefasPage() {
   const { tasks, loading, createTask, updateTask, toggleTask, deleteTask } = useTasks();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed">("all");
 
-  // Cálculo das datas da semana atual (Domingo a Sábado)
   const weekDays = useMemo(() => {
     const today = new Date();
-    const currentDayIndex = today.getDay(); // 0 = Domingo, 1 = Segunda, etc.
-
-    // Domingo da semana atual
-    const sunday = new Date(today);
-    sunday.setDate(today.getDate() - currentDayIndex);
-    sunday.setHours(0, 0, 0, 0);
-
-    const monthNames = [
-      "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-      "Jul", "Ago", "Set", "Out", "Nov", "Dez"
-    ];
+    const currentDayOfWeek = today.getDay(); // 0 = Domingo
+    
+    // Início da semana atual (Domingo)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - currentDayOfWeek);
 
     const pad = (n: number) => n.toString().padStart(2, "0");
 
-    return DIAS_CONFIG.map((dia, index) => {
-      const dateForDay = new Date(sunday);
-      dateForDay.setDate(sunday.getDate() + index);
+    return DIAS_SEMANA.map((dia, index) => {
+      const dateForDay = new Date(startOfWeek);
+      dateForDay.setDate(startOfWeek.getDate() + index);
 
       const dayOfMonth = pad(dateForDay.getDate());
-      const monthShort = monthNames[dateForDay.getMonth()];
-      const formattedDate = `${dayOfMonth} ${monthShort}`;
-      const isToday = index === currentDayIndex;
+      const monthShort = dateForDay.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "");
+      const formattedDate = `${dayOfMonth} ${monthShort.charAt(0).toUpperCase() + monthShort.slice(1)}`;
+
+      const isToday =
+        dateForDay.getDate() === today.getDate() &&
+        dateForDay.getMonth() === today.getMonth() &&
+        dateForDay.getFullYear() === today.getFullYear();
 
       // Data padrão no formato aceito pelo input datetime-local às 09:00
       const defaultIsoDate = `${dateForDay.getFullYear()}-${pad(dateForDay.getMonth() + 1)}-${dayOfMonth}T09:00`;
@@ -91,7 +89,7 @@ export default function TarefasPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-64px)] flex flex-col p-5 md:p-6 w-full w-full mx-auto overflow-hidden">
+    <div className="h-[calc(100vh-64px)] flex flex-col p-5 md:p-6 w-full mx-auto overflow-hidden">
       {/* Top Header */}
       <header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
@@ -108,7 +106,46 @@ export default function TarefasPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Seletor de Filtro de Status (Todas / Pendentes / Concluídas) */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setStatusFilter("all")}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                statusFilter === "all"
+                  ? "bg-white text-slate-800 shadow-2xs font-bold"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              Todas
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("pending")}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                statusFilter === "pending"
+                  ? "bg-white text-[var(--color-primary)] shadow-2xs font-bold"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <Clock size={12} />
+              Pendentes
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter("completed")}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                statusFilter === "completed"
+                  ? "bg-white text-emerald-600 shadow-2xs font-bold"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <CheckCircle2 size={12} />
+              Concluídas
+            </button>
+          </div>
+
           {/* Barra de Pesquisa */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
@@ -117,7 +154,7 @@ export default function TarefasPage() {
               placeholder="Pesquisar tarefas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all w-56 md:w-64 shadow-xs text-sm"
+              className="pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all w-52 md:w-60 shadow-xs text-sm"
             />
             {searchTerm && (
               <button
@@ -160,15 +197,32 @@ export default function TarefasPage() {
         {weekDays.map((dia) => {
           const lista = tasks[dia.full] || [];
           
+          // Filtro por status (Todas, Pendentes, Concluídas)
+          const listaFiltradaPorStatus = lista.filter((t) => {
+            if (statusFilter === "pending") return !t.completed;
+            if (statusFilter === "completed") return t.completed;
+            return true;
+          });
+
           // Filtro de busca em tempo real
           const listaFiltrada = searchTerm.trim() !== ""
-            ? lista.filter((task) =>
+            ? listaFiltradaPorStatus.filter((task) =>
                 task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 task.description?.toLowerCase().includes(searchTerm.toLowerCase())
               )
-            : lista;
+            : listaFiltradaPorStatus;
 
-          const pendentes = listaFiltrada.filter((t) => !t.completed).length;
+          // Ordenação crescente por Data e Horário (do mais próximo para o mais distante)
+          const listaOrdenada = [...listaFiltrada].sort((a, b) => {
+            const timeA = new Date(a.due_date).getTime();
+            const timeB = new Date(b.due_date).getTime();
+            if (isNaN(timeA) && isNaN(timeB)) return 0;
+            if (isNaN(timeA)) return 1;
+            if (isNaN(timeB)) return -1;
+            return timeA - timeB;
+          });
+
+          const pendentes = lista.filter((t) => !t.completed).length;
 
           return (
             <div
@@ -206,13 +260,13 @@ export default function TarefasPage() {
                         ? "bg-slate-200/70 text-slate-700" 
                         : "bg-slate-100 text-slate-400"
                     }`}
-                    title={`${listaFiltrada.length} tarefas (${pendentes} pendentes)`}
+                    title={`${lista.length} tarefas (${pendentes} pendentes)`}
                   >
-                    {listaFiltrada.length}
+                    {listaOrdenada.length}
                   </span>
                   <button
                     onClick={() => openCreateForm(dia.defaultIsoDate)}
-                    className="p-1 text-slate-400 hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] rounded-md transition-colors"
+                    className="p-1 text-slate-400 hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] rounded-md transition-colors cursor-pointer"
                     title={`Adicionar tarefa em ${dia.full}`}
                   >
                     <Plus size={15} strokeWidth={2.5} />
@@ -227,12 +281,20 @@ export default function TarefasPage() {
                     <div className="h-20 bg-slate-200/60 rounded-xl"></div>
                     <div className="h-20 bg-slate-200/60 rounded-xl"></div>
                   </div>
-                ) : listaFiltrada.length === 0 ? (
+                ) : listaOrdenada.length === 0 ? (
                   <div className="h-28 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl text-xs text-slate-400 text-center px-2">
-                    <span>{searchTerm ? "Nenhum resultado" : "Nenhuma tarefa"}</span>
+                    <span>
+                      {searchTerm 
+                        ? "Nenhum resultado" 
+                        : statusFilter === "completed" 
+                          ? "Nenhuma concluída" 
+                          : statusFilter === "pending"
+                            ? "Tudo em dia!"
+                            : "Nenhuma tarefa"}
+                    </span>
                   </div>
                 ) : (
-                  listaFiltrada.map((task) => (
+                  listaOrdenada.map((task) => (
                     <TaskCard
                       key={task.id}
                       task={task}

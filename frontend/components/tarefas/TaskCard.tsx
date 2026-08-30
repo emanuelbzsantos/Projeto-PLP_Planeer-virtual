@@ -39,14 +39,19 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
       const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
       const dayMonth = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 
-      // Formatação curta (ex: 30/08/28 para anos diferentes, ou 30/08 para o ano corrente)
-      const taskYearShort = String(taskYear).slice(-2);
-      const formattedDateText = isDifferentYear ? `${dayMonth}/${taskYearShort}` : dayMonth;
+      // Texto compacto: apenas horário para a semana atual, ou horário + ano completo se for outro ano
+      let badgeLabel = time;
+      if (isDifferentYear) {
+        badgeLabel = `${time} • ${taskYear}`;
+      } else if (!isThisWeek) {
+        badgeLabel = `${time} • ${dayMonth}`;
+      }
+
       const fullDateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
       return {
         time,
-        dateText: formattedDateText,
+        badgeLabel,
         isDifferentYear,
         isThisWeek,
         taskYear,
@@ -60,25 +65,25 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
   return (
     <div
       style={{ borderLeftColor: categoryStyle.color }}
-      className={`group relative flex items-start gap-2.5 p-3 rounded-xl border border-l-4 transition-all duration-200 hover:shadow-sm ${
+      className={`group relative flex items-start gap-2 p-2.5 rounded-xl border border-l-4 transition-all duration-200 hover:shadow-xs min-w-0 ${
         task.completed 
           ? 'bg-[#F8F9FC]/70 border-transparent opacity-75' 
-          : 'bg-white border-[var(--color-border)] hover:border-[var(--color-primary-light)] shadow-xs'
+          : 'bg-white border-[var(--color-border)] hover:border-[var(--color-primary-light)] shadow-2xs'
       }`}
     >
       {/* Coluna Esquerda: Checkbox e Ações (Editar/Excluir) na vertical */}
-      <div className="flex flex-col items-center gap-1.5 shrink-0 pt-0.5">
+      <div className="flex flex-col items-center gap-1 shrink-0 pt-0.5">
         {/* Checkbox */}
         <button
           onClick={() => onToggle(task.id)}
-          className={`w-[20px] h-[20px] rounded-full border-[1.5px] flex items-center justify-center transition-all duration-200 ${
+          className={`w-[19px] h-[19px] rounded-full border-[1.5px] flex items-center justify-center transition-all duration-200 cursor-pointer ${
             task.completed
               ? 'bg-[var(--color-success)] border-[var(--color-success)] text-white'
               : 'border-[#C1C8D1] hover:border-[var(--color-primary)] bg-transparent'
           }`}
           aria-label={task.completed ? "Marcar como não concluída" : "Marcar como concluída"}
         >
-          <Check size={12} className={`transition-transform duration-200 ${task.completed ? 'scale-100' : 'scale-0'}`} strokeWidth={3} />
+          <Check size={11} className={`transition-transform duration-200 ${task.completed ? 'scale-100' : 'scale-0'}`} strokeWidth={3} />
         </button>
 
         {/* Botões de Ação na vertical abaixo do checkbox (visíveis no hover) */}
@@ -89,10 +94,10 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
                 e.stopPropagation();
                 onEdit(task);
               }}
-              className="text-slate-400 hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] p-1 rounded-md transition-all"
+              className="text-slate-400 hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] p-1 rounded-md transition-all cursor-pointer"
               title="Editar tarefa"
             >
-              <Pencil size={13} />
+              <Pencil size={12} />
             </button>
           )}
           <button
@@ -100,10 +105,10 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
               e.stopPropagation();
               onDelete(task.id);
             }}
-            className="text-slate-400 hover:text-[var(--color-danger)] hover:bg-[#FEF2F2] p-1 rounded-md transition-all"
+            className="text-slate-400 hover:text-[var(--color-danger)] hover:bg-[#FEF2F2] p-1 rounded-md transition-all cursor-pointer"
             title="Excluir tarefa"
           >
-            <Trash2 size={13} />
+            <Trash2 size={12} />
           </button>
         </div>
       </div>
@@ -112,7 +117,7 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
       <div className="flex-1 min-w-0 pt-0.5">
         <h4 
           title={task.title}
-          className={`text-sm font-medium leading-snug line-clamp-2 break-words transition-colors ${
+          className={`text-[13px] font-semibold leading-snug line-clamp-2 break-all transition-colors min-w-0 ${
             task.completed ? 'line-through text-[var(--color-text-secondary)]' : 'text-[var(--color-text)]'
           }`}
         >
@@ -122,7 +127,7 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
         {task.description && (
           <p 
             title={task.description}
-            className={`text-[12px] mt-1 line-clamp-2 leading-relaxed break-words ${
+            className={`text-[11px] mt-0.5 line-clamp-2 leading-relaxed break-all ${
               task.completed ? 'text-[#9BA1A6]' : 'text-[var(--color-text-secondary)]'
             }`}
           >
@@ -130,11 +135,11 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
           </p>
         )}
 
-        {/* Badges: Horário/Data, Categoria, Recorrência */}
-        <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+        {/* Badges: Horário, Categoria, Recorrência */}
+        <div className="mt-1.5 flex items-center gap-1.5 flex-wrap min-w-0">
           {dateInfo && (
             <span 
-              className={`inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-0.5 rounded-md border ${
+              className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border shrink-0 max-w-full truncate ${
                 dateInfo.isDifferentYear
                   ? 'text-amber-800 bg-amber-50 border-amber-200/90 font-semibold'
                   : !dateInfo.isThisWeek
@@ -145,23 +150,21 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
                 dateInfo.isDifferentYear ? ` (Ano ${dateInfo.taskYear})` : !dateInfo.isThisWeek ? ' (Fora da semana atual)' : ''
               }`}
             >
-              <Clock size={11} className={`shrink-0 ${
+              <Clock size={10} className={`shrink-0 ${
                 dateInfo.isDifferentYear ? 'text-amber-600' : !dateInfo.isThisWeek ? 'text-purple-600' : 'text-slate-500'
               }`} />
-              <span>{dateInfo.time}</span>
-              <span className="opacity-40">•</span>
-              <span>{dateInfo.dateText}</span>
+              <span>{dateInfo.badgeLabel}</span>
             </span>
           )}
 
-          <span className={`inline-flex items-center gap-1.5 text-[10.5px] font-semibold px-2 py-0.5 rounded-md ${categoryStyle.badgeClass}`}>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md shrink-0 ${categoryStyle.badgeClass}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${categoryStyle.dotClass}`} />
             {task.categoria || 'Sem categoria'}
           </span>
 
           {task.recurring && (
-            <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100/60">
-              <Repeat size={11} strokeWidth={2.5} />
+            <span className="inline-flex items-center gap-0.5 text-[9.5px] font-medium text-indigo-600 bg-indigo-50 px-1 py-0.5 rounded border border-indigo-100/60 shrink-0">
+              <Repeat size={10} strokeWidth={2.5} />
               Semanal
             </span>
           )}

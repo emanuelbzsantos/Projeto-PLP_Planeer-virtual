@@ -1,12 +1,12 @@
 class TasksController < ApplicationController
   before_action :set_task, only: %i[show edit update destroy toggle]
 
-  # Listar as tarefas do usuário autenticado organizadas por dia da semana (inclui lembretes únicos e recorrentes)
+  # Listar as tarefas do usuário autenticado organizadas por dia da semana em ordem cronológica crescente
   def index
     dias_semana = Task::DIAS_SEMANA
-    user_tasks = current_user.tasks
+    user_tasks = current_user.tasks.order(:due_date)
 
-    # Garante que tarefas únicas com data e tarefas recorrentes nos dias corretos sejam listadas
+    # Garante que tarefas únicas com data e tarefas recorrentes nos dias corretos sejam listadas em ordem crescente
     @tarefas_por_dia = dias_semana.index_with do |dia|
       user_tasks.select { |task| task.occurs_on_day?(dia) }
     end

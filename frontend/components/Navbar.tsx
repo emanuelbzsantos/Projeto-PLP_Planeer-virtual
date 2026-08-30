@@ -7,6 +7,7 @@ import {
   CheckSquare, 
   Target, 
   CalendarClock, 
+  History,
   Settings, 
   LogOut,
   CalendarCheck2
@@ -34,6 +35,7 @@ export default function Navbar() {
     { name: "Tarefas", href: "/tarefas", icon: CheckSquare },
     { name: "Metas", href: "/metas", icon: Target },
     { name: "Planejamento", href: "/planejamento", icon: CalendarClock },
+    { name: "Histórico", href: "/historico", icon: History },
   ];
 
   return (
