@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiGet, apiPost, apiDelete, apiPatch } from './useApi';
-import type { TasksByDay } from '@/types';
+import type { Task, TasksByDay } from '@/types';
 
 export function useTasks() {
   const [tasks, setTasks] = useState<TasksByDay>({});
@@ -34,6 +34,23 @@ export function useTasks() {
     await fetchTasks();
   };
 
+  const updateTask = async (
+    id: number,
+    task: Partial<{
+      title: string;
+      description: string;
+      due_date: string;
+      categoria: string;
+      recurring: boolean;
+      recurrence_type: 'single' | 'weekly';
+      recurring_days: string[];
+      completed: boolean;
+    }>
+  ) => {
+    await apiPatch(`/tasks/${id}`, { task });
+    await fetchTasks();
+  };
+
   const deleteTask = async (id: number) => {
     await apiDelete(`/tasks/${id}`);
     await fetchTasks();
@@ -44,5 +61,5 @@ export function useTasks() {
     await fetchTasks();
   };
 
-  return { tasks, loading, createTask, deleteTask, toggleTask, fetchTasks };
+  return { tasks, loading, createTask, updateTask, deleteTask, toggleTask, fetchTasks };
 }

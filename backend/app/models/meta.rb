@@ -8,8 +8,8 @@ class Meta < ApplicationRecord
   # Valores permitidos para o período da meta
   PERIODOS = ["semana", "mes", "ano"]
 
-  # Validações - garante que os campos obrigatórios estão preenchidos
-  validates :descricao, presence: { message: "não pode ficar em branco" }
+  # Validações - garante que os campos obrigatórios estão preenchidos e com limite
+  validates :descricao, presence: { message: "não pode ficar em branco" }, length: { maximum: 100 }
   validates :categoria, presence: { message: "não pode ficar em branco" }
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :periodo, presence: true, inclusion: { in: PERIODOS }

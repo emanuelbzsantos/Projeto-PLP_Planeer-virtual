@@ -1,13 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiGet, apiPost, apiPatch, apiDelete } from './useApi';
 import type { PlanningBlock } from '@/types';
 
 export function usePlanningBlocks(date: string) {
   const [planningBlocks, setPlanningBlocks] = useState<PlanningBlock[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const isFirstMount = useRef(true);
 
   const fetchPlanningBlocks = useCallback(async () => {
-    setLoading(true);
+    if (isFirstMount.current) {
+      setLoading(true);
+      isFirstMount.current = false;
+    }
     try {
       const data = await apiGet<PlanningBlock[]>(`/planning_blocks?date=${date}`);
       setPlanningBlocks(data);

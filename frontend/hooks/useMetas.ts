@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiGet, apiPost, apiDelete, apiPatch } from './useApi';
-import type { MetasByPeriod } from '@/types';
+import type { MetasByPeriod, Meta } from '@/types';
 
 export function useMetas() {
   const [metas, setMetas] = useState<MetasByPeriod>({});
@@ -26,6 +26,11 @@ export function useMetas() {
     await fetchMetas();
   };
 
+  const updateMeta = async (id: number, meta: Partial<{ descricao: string; categoria: string; status: string; periodo: string }>) => {
+    await apiPatch(`/metas/${id}`, { meta });
+    await fetchMetas();
+  };
+
   const deleteMeta = async (id: number) => {
     await apiDelete(`/metas/${id}`);
     await fetchMetas();
@@ -36,5 +41,5 @@ export function useMetas() {
     await fetchMetas();
   };
 
-  return { metas, loading, createMeta, deleteMeta, cycleStatus, fetchMetas };
+  return { metas, loading, createMeta, updateMeta, deleteMeta, cycleStatus, fetchMetas };
 }

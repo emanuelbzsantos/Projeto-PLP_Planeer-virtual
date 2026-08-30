@@ -5,7 +5,7 @@ class PlanningBlock < ApplicationRecord
   validates :date, presence: true
   validates :start_time, presence: true
   validates :end_time, presence: true
-  validates :title, presence: true, if: -> { task_id.blank? }
+  validates :title, presence: { message: "não pode ficar em branco" }, length: { maximum: 100 }, if: -> { task_id.blank? }
 
   validate :end_after_start
 
