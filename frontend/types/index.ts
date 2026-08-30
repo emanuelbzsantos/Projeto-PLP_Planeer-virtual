@@ -6,6 +6,7 @@ export interface Task {
   description: string;
   due_date: string;
   completed: boolean;
+  categoria: string;
   recurring?: boolean;
   recurrence_type?: RecurrenceType;
   recurring_days?: string[];

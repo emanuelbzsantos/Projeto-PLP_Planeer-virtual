@@ -47,13 +47,14 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   test "deve criar tarefa para o usuário autenticado" do
     assert_difference("Task.count") do
       post tasks_url, headers: @auth_headers, params: {
-        task: { title: "Nova tarefa", description: "Descrição", due_date: "2026-08-26" }
+        task: { title: "Nova tarefa", description: "Descrição", due_date: "2026-08-26", categoria: "Estudos" }
       }, as: :json
     end
 
     assert_response :created
     body = JSON.parse(response.body)
     assert_equal "Nova tarefa", body["title"]
+    assert_equal "Estudos", body["categoria"]
     assert_equal false, body["completed"]
     assert_equal false, body["recurring"]
     assert_equal "single", body["recurrence_type"]
@@ -68,7 +69,8 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
           due_date: "2026-08-24 08:00:00",
           recurring: true,
           recurrence_type: "weekly",
-          recurring_days: ["Segunda-feira", "Quarta-feira", "Sexta-feira"]
+          categoria: "Saúde",
+          recurring_days: [ "Segunda-feira", "Quarta-feira", "Sexta-feira" ]
         }
       }, as: :json
     end
@@ -78,7 +80,8 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Treino semanal", body["title"]
     assert_equal true, body["recurring"]
     assert_equal "weekly", body["recurrence_type"]
-    assert_equal ["Segunda-feira", "Quarta-feira", "Sexta-feira"], body["recurring_days"]
+    assert_equal "Saúde", body["categoria"]
+    assert_equal [ "Segunda-feira", "Quarta-feira", "Sexta-feira" ], body["recurring_days"]
   end
 
   test "deve listar tarefa recorrente nos dias definidos" do

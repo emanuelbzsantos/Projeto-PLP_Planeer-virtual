@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Calendar, Repeat, Bell, Check } from 'lucide-react';
 import type { RecurrenceType } from '@/types';
+import { CATEGORIES } from '@/lib/categories';
 
 interface TaskFormProps {
   onSubmit: (task: {
     title: string;
     description: string;
     due_date: string;
+    categoria: string;
     recurring?: boolean;
     recurrence_type?: RecurrenceType;
     recurring_days?: string[];
@@ -29,6 +31,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(defaultDate);
+  const [categoria, setCategoria] = useState('Pessoal');
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('single');
   const [selectedDays, setSelectedDays] = useState<string[]>(() => {
     if (defaultDate) {
@@ -80,6 +83,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
         title,
         description,
         due_date: dueDate,
+        categoria,
         recurring: isRecurring,
         recurrence_type: recurrenceType,
         recurring_days: isRecurring ? finalDays : [],
@@ -113,6 +117,23 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '' }: TaskFormProps
           placeholder="Ex: Reunião de alinhamento"
           required
         />
+      </div>
+
+      <div>
+        <label htmlFor="task_categoria" className="block text-sm font-medium text-[var(--color-text)] mb-1">
+          Categoria
+        </label>
+        <select
+          id="task_categoria"
+          value={categoria}
+          onChange={(e) => setCategoria(e.target.value)}
+          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all bg-white text-sm"
+          required
+        >
+          {CATEGORIES.map((category) => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
       </div>
 
       <div>

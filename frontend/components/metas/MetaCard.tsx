@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
 import type { Meta } from '@/types';
+import { getCategoryStyle } from '@/lib/categories';
 
 interface MetaCardProps {
   meta: Meta;
@@ -16,9 +17,13 @@ export function MetaCard({ meta, onCycleStatus, onDelete }: MetaCardProps) {
   };
 
   const config = statusConfig[meta.status];
+  const categoryStyle = getCategoryStyle(meta.categoria);
 
   return (
-    <div className="group p-4 rounded-xl bg-white border border-[var(--color-border)] hover:border-[var(--color-primary-light)] hover:shadow-sm transition-all duration-200 relative flex flex-col h-full">
+    <div
+      style={{ borderLeftColor: categoryStyle.color }}
+      className="group p-4 rounded-xl bg-white border border-l-4 border-[var(--color-border)] hover:shadow-sm transition-all duration-200 relative flex flex-col h-full"
+    >
       <div className="flex justify-between items-start mb-3">
         <h4 className="font-semibold text-[15px] text-[var(--color-text)] leading-tight pr-6">{meta.descricao}</h4>
         
@@ -32,8 +37,9 @@ export function MetaCard({ meta, onCycleStatus, onDelete }: MetaCardProps) {
       </div>
       
       <div className="mt-auto pt-4 flex items-center justify-between gap-2 border-t border-[var(--color-border)] border-dashed">
-        <span className="text-[11px] uppercase tracking-wider font-semibold px-2 py-1 rounded bg-[#F1F3F5] text-[var(--color-text-secondary)]">
-          {meta.categoria}
+        <span className={`inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-semibold px-2 py-1 rounded ${categoryStyle.badgeClass}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${categoryStyle.dotClass}`} />
+          {meta.categoria || 'Sem categoria'}
         </span>
         
         <button

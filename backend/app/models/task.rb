@@ -4,6 +4,7 @@ class Task < ApplicationRecord
   DIAS_SEMANA = %w[Domingo Segunda-feira Terça-feira Quarta-feira Quinta-feira Sexta-feira Sábado].freeze
 
   validates :title, presence: true
+  validates :categoria, presence: true
   validates :recurrence_type, inclusion: { in: %w[single weekly] }, allow_blank: true
 
   def recurring?

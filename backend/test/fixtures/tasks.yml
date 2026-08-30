@@ -5,6 +5,7 @@ one:
   description: Capítulo 4 do livro
   due_date: 2026-08-25 10:00:00
   completed: false
+  categoria: Estudos
   user: usuario_teste
 
 two:
@@ -12,6 +13,7 @@ two:
   description: Comprar queijo coalho
   due_date: 2026-08-25 14:00:00
   completed: true
+  categoria: Pessoal
   user: usuario_teste
 
 tarefa_recorrente:
@@ -22,6 +24,7 @@ tarefa_recorrente:
   recurring: true
   recurrence_type: weekly
   recurring_days: "{Segunda-feira,Quinta-feira}"
+  categoria: Trabalho
   user: usuario_teste
 
 tarefa_outro_usuario:
@@ -29,4 +32,5 @@ tarefa_outro_usuario:
   description: Não deve aparecer para usuario_teste
   due_date: 2026-08-25 10:00:00
   completed: false
+  categoria: Trabalho
   user: outro_usuario

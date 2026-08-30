@@ -25,6 +25,7 @@ export function useTasks() {
     title: string;
     description: string;
     due_date: string;
+    categoria: string;
     recurring?: boolean;
     recurrence_type?: 'single' | 'weekly';
     recurring_days?: string[];
