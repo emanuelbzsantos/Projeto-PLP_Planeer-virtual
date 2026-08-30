@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CATEGORIES } from '@/lib/categories';
+import { FormInput, FormSelect } from '@/components/ui/FormField';
 
 interface MetaFormProps {
   onSubmit: (meta: { descricao: string; categoria: string; status: string; periodo: string }) => Promise<void>;
@@ -7,21 +8,34 @@ interface MetaFormProps {
   defaultPeriodo?: string;
 }
 
+const MAX_DESCRICAO_LENGTH = 100;
+
 export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana' }: MetaFormProps) {
   const [descricao, setDescricao] = useState('');
   const [categoria, setCategoria] = useState('Pessoal');
   const [periodo, setPeriodo] = useState(defaultPeriodo);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{ descricao?: string }>({});
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!descricao || !categoria || !periodo) return;
-    
+
+    if (!descricao.trim()) {
+      setErrors({ descricao: 'A descrição da meta não pode ficar em branco.' });
+      return;
+    }
+
+    setErrors({});
     setIsSubmitting(true);
     try {
-      await onSubmit({ descricao, categoria, status: 'nao_cumprida', periodo });
+      await onSubmit({ 
+        descricao: descricao.trim().slice(0, MAX_DESCRICAO_LENGTH), 
+        categoria, 
+        status: 'nao_cumprida', 
+        periodo 
+      });
       setDescricao('');
-      setCategoria('');
+      setCategoria('Pessoal');
       if (!defaultPeriodo) setPeriodo('semana');
       onCancel();
     } catch (error) {
@@ -32,63 +46,61 @@ export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana' }: Meta
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="descricao" className="block text-sm font-medium text-[var(--color-text)] mb-1">Descrição</label>
-        <input
-          id="descricao"
-          type="text"
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
-          placeholder="Ex: Ler 30 páginas por dia"
-          required
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <FormInput
+        id="meta_descricao"
+        label="Descrição da Meta"
+        required
+        maxLength={MAX_DESCRICAO_LENGTH}
+        currentLength={descricao.length}
+        value={descricao}
+        onChange={(e) => {
+          setDescricao(e.target.value);
+          if (errors.descricao && e.target.value.trim()) {
+            setErrors({});
+          }
+        }}
+        error={errors.descricao}
+        placeholder="Ex: Ler 30 páginas por dia"
+      />
       
-      <div>
-        <label htmlFor="categoria" className="block text-sm font-medium text-[var(--color-text)] mb-1">Categoria</label>
-        <select
-          id="categoria"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all bg-white"
-          required
-        >
-          {CATEGORIES.map((category) => (
-            <option key={category} value={category}>{category}</option>
-          ))}
-        </select>
-      </div>
+      <FormSelect
+        id="meta_categoria"
+        label="Categoria"
+        required
+        value={categoria}
+        onChange={(e) => setCategoria(e.target.value)}
+      >
+        {CATEGORIES.map((category) => (
+          <option key={category} value={category}>{category}</option>
+        ))}
+      </FormSelect>
       
-      <div>
-        <label htmlFor="periodo" className="block text-sm font-medium text-[var(--color-text)] mb-1">Período</label>
-        <select
-          id="periodo"
-          value={periodo}
-          onChange={(e) => setPeriodo(e.target.value)}
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all bg-white"
-          required
-        >
-          <option value="semana">Semana</option>
-          <option value="mes">Mês</option>
-          <option value="ano">Ano</option>
-        </select>
-      </div>
+      <FormSelect
+        id="meta_periodo"
+        label="Período"
+        required
+        value={periodo}
+        onChange={(e) => setPeriodo(e.target.value)}
+      >
+        <option value="semana">Semana</option>
+        <option value="mes">Mês</option>
+        <option value="ano">Ano</option>
+      </FormSelect>
       
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2 pt-3">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 rounded-lg transition-colors"
+          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           disabled={isSubmitting}
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors flex items-center justify-center min-w-[100px]"
-          disabled={isSubmitting || !descricao || !categoria}
+          className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors flex items-center justify-center min-w-[110px] cursor-pointer shadow-xs"
+          disabled={isSubmitting}
         >
           {isSubmitting ? 'Salvando...' : 'Criar Meta'}
         </button>

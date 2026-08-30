@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Repeat, Bell, Check, AlertCircle } from 'lucide-react';
+import { Calendar, Repeat, Bell, Check } from 'lucide-react';
 import type { Task, RecurrenceType } from '@/types';
 import { CATEGORIES } from '@/lib/categories';
+import { FormInput, FormTextarea, FormSelect } from '@/components/ui/FormField';
 
 interface TaskFormProps {
   onSubmit: (task: {
@@ -150,112 +151,64 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-      {/* Campo Título */}
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <label htmlFor="title" className="block text-sm font-medium text-[var(--color-text)]">
-            Título <span className="text-rose-500">*</span>
-          </label>
-          <span className={`text-[11px] ${
-            title.length >= MAX_TITLE_LENGTH ? 'text-rose-500 font-semibold' : 'text-slate-400'
-          }`}>
-            {title.length}/{MAX_TITLE_LENGTH}
-          </span>
-        </div>
-        <input
-          id="title"
-          type="text"
-          maxLength={MAX_TITLE_LENGTH}
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            if (errors.title && e.target.value.trim()) {
-              setErrors(prev => ({ ...prev, title: undefined }));
-            }
-          }}
-          className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-all text-sm ${
-            errors.title 
-              ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500 bg-rose-50/20' 
-              : 'border-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)]'
-          }`}
-          placeholder="Ex: Reunião de alinhamento"
-        />
-        {errors.title && (
-          <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1 font-medium animate-in fade-in duration-150">
-            <AlertCircle size={13} className="shrink-0" />
-            {errors.title}
-          </p>
-        )}
-      </div>
+      {/* Campo Título com FormInput reutilizável */}
+      <FormInput
+        id="task_title"
+        label="Título"
+        required
+        maxLength={MAX_TITLE_LENGTH}
+        currentLength={title.length}
+        value={title}
+        onChange={(e) => {
+          setTitle(e.target.value);
+          if (errors.title && e.target.value.trim()) {
+            setErrors(prev => ({ ...prev, title: undefined }));
+          }
+        }}
+        error={errors.title}
+        placeholder="Ex: Reunião de alinhamento"
+      />
 
-      {/* Campo Categoria */}
-      <div>
-        <label htmlFor="task_categoria" className="block text-sm font-medium text-[var(--color-text)] mb-1">
-          Categoria
-        </label>
-        <select
-          id="task_categoria"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all bg-white text-sm"
-          required
-        >
-          {CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
-      </div>
+      {/* Campo Categoria com FormSelect reutilizável */}
+      <FormSelect
+        id="task_categoria"
+        label="Categoria"
+        required
+        value={categoria}
+        onChange={(e) => setCategoria(e.target.value)}
+      >
+        {CATEGORIES.map((cat) => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
+      </FormSelect>
 
-      {/* Campo Descrição */}
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <label htmlFor="description" className="block text-sm font-medium text-[var(--color-text)]">
-            Descrição (opcional)
-          </label>
-          <span className={`text-[11px] ${
-            description.length >= MAX_DESCRIPTION_LENGTH ? 'text-rose-500 font-semibold' : 'text-slate-400'
-          }`}>
-            {description.length}/{MAX_DESCRIPTION_LENGTH}
-          </span>
-        </div>
-        <textarea
-          id="description"
-          maxLength={MAX_DESCRIPTION_LENGTH}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all resize-none h-20 text-sm"
-          placeholder="Detalhes adicionais..."
-        />
-      </div>
+      {/* Campo Descrição com FormTextarea reutilizável */}
+      <FormTextarea
+        id="task_description"
+        label="Descrição (opcional)"
+        maxLength={MAX_DESCRIPTION_LENGTH}
+        currentLength={description.length}
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Detalhes adicionais..."
+        rows={3}
+      />
 
-      {/* Campo Data e Hora */}
-      <div>
-        <label htmlFor="due_date" className="block text-sm font-medium text-[var(--color-text)] mb-1">
-          Data e Hora <span className="text-rose-500">*</span>
-        </label>
-        <input
-          id="due_date"
-          type="datetime-local"
-          value={dueDate}
-          onChange={(e) => {
-            setDueDate(e.target.value);
-            if (errors.dueDate && e.target.value) {
-              setErrors(prev => ({ ...prev, dueDate: undefined }));
-            }
-          }}
-          className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-all text-sm ${
-            errors.dueDate 
-              ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500 bg-rose-50/20' 
-              : 'border-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)]'
-          }`}
-        />
-        {errors.dueDate && (
-          <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1 font-medium animate-in fade-in duration-150">
-            <AlertCircle size={13} className="shrink-0" />
-            {errors.dueDate}
-          </p>
-        )}
-      </div>
+      {/* Campo Data e Hora com FormInput reutilizável */}
+      <FormInput
+        id="task_due_date"
+        type="datetime-local"
+        label="Data e Hora"
+        required
+        value={dueDate}
+        onChange={(e) => {
+          setDueDate(e.target.value);
+          if (errors.dueDate && e.target.value) {
+            setErrors(prev => ({ ...prev, dueDate: undefined }));
+          }
+        }}
+        error={errors.dueDate}
+      />
 
       {/* Seção de Tipo de Lembrete / Recorrência */}
       <div className="pt-2 border-t border-[var(--color-border)]">
@@ -269,9 +222,9 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
           <button
             type="button"
             onClick={() => setRecurrenceType('single')}
-            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
               recurrenceType === 'single'
-                ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-primary)] font-semibold shadow-sm'
+                ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-primary)] font-semibold shadow-xs'
                 : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
             }`}
           >
@@ -283,9 +236,9 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
           <button
             type="button"
             onClick={handleSelectWeekly}
-            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
               recurrenceType === 'weekly'
-                ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-primary)] font-semibold shadow-sm'
+                ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-primary)] font-semibold shadow-xs'
                 : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
             }`}
           >
@@ -308,7 +261,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
                     key={dia.key}
                     type="button"
                     onClick={() => toggleDay(dia.full)}
-                    className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all flex items-center gap-1 ${
+                    className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all flex items-center gap-1 cursor-pointer ${
                       isSelected
                         ? 'bg-[var(--color-primary)] text-white shadow-xs'
                         : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'

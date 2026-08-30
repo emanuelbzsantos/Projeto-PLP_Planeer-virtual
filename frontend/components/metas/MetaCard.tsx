@@ -22,10 +22,13 @@ export function MetaCard({ meta, onCycleStatus, onDelete }: MetaCardProps) {
   return (
     <div
       style={{ borderLeftColor: categoryStyle.color }}
-      className="group p-4 rounded-xl bg-white border border-l-4 border-[var(--color-border)] hover:border-[var(--color-primary-light)] hover:shadow-xs transition-all duration-200 relative flex flex-col shrink-0"
+      className="group p-4 rounded-xl bg-white border border-l-4 border-[var(--color-border)] hover:border-[var(--color-primary-light)] hover:shadow-xs transition-all duration-200 relative flex flex-col shrink-0 min-w-0"
     >
-      <div className="flex justify-between items-start mb-3">
-        <h4 className="font-semibold text-sm text-[var(--color-text)] leading-snug pr-6 break-words">
+      <div className="flex justify-between items-start mb-3 min-w-0">
+        <h4 
+          title={meta.descricao}
+          className="font-semibold text-sm text-[var(--color-text)] leading-snug pr-6 break-all line-clamp-3 min-w-0"
+        >
           {meta.descricao}
         </h4>
         
