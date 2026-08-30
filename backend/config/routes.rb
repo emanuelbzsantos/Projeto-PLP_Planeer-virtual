@@ -11,6 +11,7 @@ Rails.application.routes.draw do
       patch :cycle_status
     end
   end
+  resources :planning_blocks, only: %i[index show create update destroy]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Autenticação e Sessão

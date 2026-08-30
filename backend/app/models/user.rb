@@ -5,6 +5,7 @@ class User < ApplicationRecord
 
   has_many :tasks, dependent: :destroy
   has_many :metas, dependent: :destroy
+  has_many :planning_blocks, dependent: :destroy
 
   # Normaliza o email antes da validação
   before_validation :normalize_email

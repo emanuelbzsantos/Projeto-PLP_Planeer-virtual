@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_29_151037) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_30_021025) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_29_151037) do
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.index ["user_id"], name: "index_metas_on_user_id"
+  end
+
+  create_table "planning_blocks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.datetime "end_time", null: false
+    t.datetime "start_time", null: false
+    t.bigint "task_id"
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["task_id"], name: "index_planning_blocks_on_task_id"
+    t.index ["user_id", "date"], name: "index_planning_blocks_on_user_id_and_date"
+    t.index ["user_id"], name: "index_planning_blocks_on_user_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -52,5 +66,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_29_151037) do
   end
 
   add_foreign_key "metas", "users"
+  add_foreign_key "planning_blocks", "tasks"
+  add_foreign_key "planning_blocks", "users"
   add_foreign_key "tasks", "users"
 end
