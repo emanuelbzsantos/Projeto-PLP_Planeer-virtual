@@ -12,8 +12,8 @@ Planner pessoal com **PostgreSQL**, API **Ruby on Rails** e frontend **Next.js (
 
 | Serviço   | URL                    |
 |-----------|------------------------|
-| Frontend  | http://localhost:3000  |
-| Backend   | http://localhost:3001  |
+| Frontend  | http://localhost:3001  |
+| Backend   | http://localhost:3000  |
 | Postgres  | localhost:5432         |
 
 ## Como executar
