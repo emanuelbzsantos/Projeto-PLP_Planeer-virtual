@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { useMetas } from "@/hooks/useMetas";
-import { Plus, Target, Search } from "lucide-react";
+import { Plus, Target, Search, X } from "lucide-react";
 import { MetaCard } from "@/components/metas/MetaCard";
 import { MetaForm } from "@/components/metas/MetaForm";
 import { Modal } from "@/components/ui/Modal";
-import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function MetasPage() {
   const { metas, loading, createMeta, cycleStatus, deleteMeta } = useMetas();
@@ -14,10 +13,10 @@ export default function MetasPage() {
   const [selectedPeriodo, setSelectedPeriodo] = useState("semana");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const periodosOrder = [
-    { key: "Semana", value: "semana" },
-    { key: "Mês", value: "mes" },
-    { key: "Ano", value: "ano" }
+  const periodosConfig = [
+    { key: "Semana", value: "semana", title: "Metas da Semana", subtitle: "Foco no curto prazo" },
+    { key: "Mês", value: "mes", title: "Metas do Mês", subtitle: "Foco no médio prazo" },
+    { key: "Ano", value: "ano", title: "Metas do Ano", subtitle: "Grandes objetivos" }
   ];
 
   function openFormForPeriodo(periodoValue: string) {
@@ -26,36 +25,50 @@ export default function MetasPage() {
   }
 
   return (
-    <div className="p-8 max-w-[1400px] mx-auto w-full pb-20">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-[var(--color-text)] flex items-center gap-3 tracking-tight">
-            <div className="bg-purple-50 p-2 rounded-xl text-purple-600">
-              <Target size={24} />
-            </div>
-            Minhas Metas
-          </h1>
-          <p className="text-[var(--color-text-secondary)] mt-2">
-            Acompanhe seus objetivos de curto, médio e longo prazo.
-          </p>
+    <div className="h-[calc(100vh-64px)] flex flex-col p-6 md:p-8 w-full max-w-none overflow-hidden">
+      {/* Top Header */}
+      <header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 w-full">
+        <div className="flex items-center gap-3">
+          <div className="bg-purple-100 p-2.5 rounded-2xl text-purple-600 shadow-xs">
+            <Target size={26} />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text)] tracking-tight">
+              Minhas Metas
+            </h1>
+            <p className="text-xs md:text-sm text-[var(--color-text-secondary)] mt-0.5">
+              Acompanhe seus objetivos estratégicos de curto, médio e longo prazo.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="relative w-full md:w-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <div className="flex items-center gap-3">
+          {/* Barra de Busca */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input 
               type="text" 
               placeholder="Buscar metas..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full md:w-64 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-shadow text-sm text-[var(--color-text)]"
+              className="pl-9 pr-8 py-2 w-56 md:w-64 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-sm text-[var(--color-text)] shadow-xs"
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full"
+                title="Limpar busca"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
+
           <button
             onClick={() => openFormForPeriodo("semana")}
-            className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-5 py-2.5 rounded-xl transition-colors font-medium shadow-sm hover:shadow-md whitespace-nowrap"
+            className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-4 py-2 rounded-xl transition-all font-medium text-sm shadow-xs hover:shadow-sm whitespace-nowrap cursor-pointer"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             Nova Meta
           </button>
         </div>
@@ -69,63 +82,72 @@ export default function MetasPage() {
         />
       </Modal>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[500px]">
-        {loading ? (
-          periodosOrder.map((p) => (
-            <div key={p.key} className="animate-pulse">
-              <div className="h-10 bg-gray-100 rounded-lg mb-4"></div>
-              <div className="h-40 bg-gray-100 rounded-xl mb-3"></div>
-              <div className="h-40 bg-gray-100 rounded-xl"></div>
-            </div>
-          ))
-        ) : (
-          periodosOrder.map((p) => {
-            const rawLista = metas[p.key] || [];
-            const lista = rawLista.filter(meta => 
-              meta.descricao.toLowerCase().includes(searchTerm.toLowerCase()) || 
-              (meta.categoria && meta.categoria.toLowerCase().includes(searchTerm.toLowerCase()))
-            );
+      {/* Grid de 3 Colunas 100% da Largura com Scroll Interno */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-3 gap-6 w-full items-stretch pb-2">
+        {periodosConfig.map((p) => {
+          const rawLista = metas[p.key] || [];
+          const lista = rawLista.filter(meta => 
+            meta.descricao.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            (meta.categoria && meta.categoria.toLowerCase().includes(searchTerm.toLowerCase()))
+          );
 
-            return (
-              <div key={p.key} className="flex flex-col">
-                {/* Header do período */}
-                <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-transparent group">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--color-text-secondary)] flex items-center gap-2">
-                    {p.key}
-                  </h3>
-                  
+          return (
+            <div 
+              key={p.key} 
+              className="flex flex-col rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 h-full min-h-0 hover:border-slate-300/80 transition-all"
+            >
+              {/* Header do Período */}
+              <div className="shrink-0 flex items-center justify-between mb-3 pb-2.5 border-b border-slate-200/80">
+                <div>
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                    {p.title}
+                  </h2>
+                  <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                    {p.subtitle}
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-200/70 text-slate-700">
+                    {lista.length}
+                  </span>
                   <button 
                     onClick={() => openFormForPeriodo(p.value)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] rounded-md"
+                    className="p-1 text-slate-400 hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] rounded-md transition-colors cursor-pointer"
                     title={`Adicionar meta para ${p.key}`}
                   >
                     <Plus size={16} strokeWidth={2.5} />
                   </button>
                 </div>
-
-                {/* Lista de metas */}
-                <div className="flex-1 flex flex-col gap-3">
-                  {lista.length === 0 ? (
-                    <EmptyState 
-                      icon={<TargetPlaceholder />} 
-                      title="Nenhuma meta" 
-                      description={`Você não tem metas para este ${p.key.toLowerCase()}.`}
-                    />
-                  ) : (
-                    lista.map((meta) => (
-                      <MetaCard
-                        key={meta.id}
-                        meta={meta}
-                        onCycleStatus={cycleStatus}
-                        onDelete={deleteMeta}
-                      />
-                    ))
-                  )}
-                </div>
               </div>
-            );
-          })
-        )}
+
+              {/* Lista de Metas com Scroll Vertical Interno */}
+              <div className="flex-1 min-h-0 overflow-y-auto pr-1 flex flex-col gap-3">
+                {loading ? (
+                  <div className="space-y-3 animate-pulse">
+                    <div className="h-28 bg-slate-200/60 rounded-xl"></div>
+                    <div className="h-28 bg-slate-200/60 rounded-xl"></div>
+                  </div>
+                ) : lista.length === 0 ? (
+                  <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl text-xs text-slate-400 text-center px-4">
+                    <TargetPlaceholder />
+                    <span className="font-medium mt-2">{searchTerm ? "Nenhuma meta encontrada" : "Nenhuma meta"}</span>
+                    <span className="text-[11px] text-slate-400 mt-0.5">Você não tem metas para este período.</span>
+                  </div>
+                ) : (
+                  lista.map((meta) => (
+                    <MetaCard
+                      key={meta.id}
+                      meta={meta}
+                      onCycleStatus={cycleStatus}
+                      onDelete={deleteMeta}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -133,7 +155,7 @@ export default function MetasPage() {
 
 function TargetPlaceholder() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10"/>
       <circle cx="12" cy="12" r="6"/>
       <circle cx="12" cy="12" r="2"/>

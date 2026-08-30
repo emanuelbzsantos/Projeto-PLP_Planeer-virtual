@@ -91,18 +91,18 @@ export default function TarefasPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col p-6 md:p-8 w-full max-w-[1750px] mx-auto overflow-hidden">
+    <div className="h-[calc(100vh-64px)] flex flex-col p-5 md:p-6 w-full w-full mx-auto overflow-hidden">
       {/* Top Header */}
-      <header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+      <header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
           <div className="bg-[var(--color-primary-light)] p-2.5 rounded-2xl text-[var(--color-primary)] shadow-xs">
-            <CalendarDays size={26} />
+            <CalendarDays size={24} />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text)] tracking-tight">
+            <h1 className="text-2xl font-bold text-[var(--color-text)] tracking-tight">
               Minha Semana
             </h1>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
+            <p className="text-xs md:text-sm text-[var(--color-text-secondary)] mt-0.5">
               Organize e acompanhe suas tarefas da semana de forma integrada.
             </p>
           </div>
@@ -111,13 +111,13 @@ export default function TarefasPage() {
         <div className="flex items-center gap-3">
           {/* Barra de Pesquisa */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={17} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
               placeholder="Pesquisar tarefas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all w-60 md:w-72 shadow-xs text-sm"
+              className="pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all w-56 md:w-64 shadow-xs text-sm"
             />
             {searchTerm && (
               <button
@@ -135,7 +135,7 @@ export default function TarefasPage() {
             onClick={() => openCreateForm()}
             className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-4 py-2 rounded-xl transition-all font-medium text-sm shadow-xs hover:shadow-sm whitespace-nowrap cursor-pointer"
           >
-            <Plus size={18} />
+            <Plus size={17} />
             Nova Tarefa
           </button>
         </div>
@@ -155,7 +155,7 @@ export default function TarefasPage() {
         />
       </Modal>
 
-      {/* Grid de 7 colunas - Ocupa 100% da altura restante, com scroll individual nas colunas */}
+      {/* Grid de 7 colunas - 100% da largura útil e altura restante com scroll interno */}
       <div className="flex-1 min-h-0 grid grid-cols-7 gap-3 w-full items-stretch pb-2">
         {weekDays.map((dia) => {
           const lista = tasks[dia.full] || [];

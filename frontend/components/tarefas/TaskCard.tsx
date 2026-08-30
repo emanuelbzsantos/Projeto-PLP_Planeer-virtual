@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Check, Repeat, Clock, Pencil, Calendar } from 'lucide-react';
+import { Trash2, Check, Repeat, Clock, Pencil } from 'lucide-react';
 import type { Task } from '@/types';
 import { getCategoryStyle } from '@/lib/categories';
 
@@ -39,7 +39,9 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
       const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
       const dayMonth = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 
-      const formattedDateText = isDifferentYear ? `${dayMonth}/${taskYear}` : dayMonth;
+      // Formatação curta (ex: 30/08/28 para anos diferentes, ou 30/08 para o ano corrente)
+      const taskYearShort = String(taskYear).slice(-2);
+      const formattedDateText = isDifferentYear ? `${dayMonth}/${taskYearShort}` : dayMonth;
       const fullDateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
       return {
@@ -132,7 +134,7 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
         <div className="mt-2 flex items-center gap-1.5 flex-wrap">
           {dateInfo && (
             <span 
-              className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border ${
+              className={`inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-0.5 rounded-md border ${
                 dateInfo.isDifferentYear
                   ? 'text-amber-800 bg-amber-50 border-amber-200/90 font-semibold'
                   : !dateInfo.isThisWeek
@@ -152,13 +154,13 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
             </span>
           )}
 
-          <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-md ${categoryStyle.badgeClass}`}>
+          <span className={`inline-flex items-center gap-1.5 text-[10.5px] font-semibold px-2 py-0.5 rounded-md ${categoryStyle.badgeClass}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${categoryStyle.dotClass}`} />
             {task.categoria || 'Sem categoria'}
           </span>
 
           {task.recurring && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100/60">
+            <span className="inline-flex items-center gap-1 text-[10.5px] font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100/60">
               <Repeat size={11} strokeWidth={2.5} />
               Semanal
             </span>

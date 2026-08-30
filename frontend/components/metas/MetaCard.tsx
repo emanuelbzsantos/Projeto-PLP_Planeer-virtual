@@ -22,30 +22,32 @@ export function MetaCard({ meta, onCycleStatus, onDelete }: MetaCardProps) {
   return (
     <div
       style={{ borderLeftColor: categoryStyle.color }}
-      className="group p-4 rounded-xl bg-white border border-l-4 border-[var(--color-border)] hover:shadow-sm transition-all duration-200 relative flex flex-col h-full"
+      className="group p-4 rounded-xl bg-white border border-l-4 border-[var(--color-border)] hover:border-[var(--color-primary-light)] hover:shadow-xs transition-all duration-200 relative flex flex-col shrink-0"
     >
       <div className="flex justify-between items-start mb-3">
-        <h4 className="font-semibold text-[15px] text-[var(--color-text)] leading-tight pr-6">{meta.descricao}</h4>
+        <h4 className="font-semibold text-sm text-[var(--color-text)] leading-snug pr-6 break-words">
+          {meta.descricao}
+        </h4>
         
         <button
           onClick={() => onDelete(meta.id)}
-          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-[var(--color-text-secondary)] hover:text-[var(--color-danger)] hover:bg-[#FEF2F2] p-1.5 rounded-md transition-all"
+          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-[var(--color-text-secondary)] hover:text-[var(--color-danger)] hover:bg-[#FEF2F2] p-1.5 rounded-md transition-all cursor-pointer"
           title="Excluir meta"
         >
-          <Trash2 size={16} />
+          <Trash2 size={15} />
         </button>
       </div>
       
-      <div className="mt-auto pt-4 flex items-center justify-between gap-2 border-t border-[var(--color-border)] border-dashed">
-        <span className={`inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-semibold px-2 py-1 rounded ${categoryStyle.badgeClass}`}>
+      <div className="mt-2 pt-3 flex items-center justify-between gap-2 border-t border-[var(--color-border)] border-dashed">
+        <span className={`inline-flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-md ${categoryStyle.badgeClass}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${categoryStyle.dotClass}`} />
           {meta.categoria || 'Sem categoria'}
         </span>
         
         <button
           onClick={() => onCycleStatus(meta.id)}
-          className={`text-[12px] font-medium px-2.5 py-1 rounded-md cursor-pointer transition-colors ${config.textClass} ${config.bgClass} ${config.hoverClass}`}
-          title="Clique para avançar o status"
+          className={`text-[11.5px] font-medium px-2.5 py-1 rounded-md cursor-pointer transition-colors ${config.textClass} ${config.bgClass} ${config.hoverClass}`}
+          title="Clique para alternar o status"
         >
           {config.label}
         </button>
