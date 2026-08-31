@@ -1,12 +1,20 @@
 export type RecurrenceType = 'single' | 'weekly';
 
+export type TaskCategory =
+  | 'Reuniões'
+  | 'Ligações'
+  | 'Compras'
+  | 'Estudos'
+  | 'Exercícios'
+  | 'Entregas de trabalhos';
+
 export interface Task {
   id: number;
   title: string;
   description: string;
   due_date: string;
   completed: boolean;
-  categoria: string;
+  categoria: TaskCategory | string;
   recurring?: boolean;
   recurrence_type?: RecurrenceType;
   recurring_days?: string[];

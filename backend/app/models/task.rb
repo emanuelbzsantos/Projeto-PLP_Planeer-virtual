@@ -3,10 +3,18 @@ class Task < ApplicationRecord
   has_many :planning_blocks, dependent: :nullify
 
   DIAS_SEMANA = %w[Domingo Segunda-feira Terça-feira Quarta-feira Quinta-feira Sexta-feira Sábado].freeze
+  CATEGORIAS = [
+    "Reuniões",
+    "Ligações",
+    "Compras",
+    "Estudos",
+    "Exercícios",
+    "Entregas de trabalhos"
+  ].freeze
 
   validates :title, presence: true, length: { maximum: 100 }
   validates :description, length: { maximum: 500 }, allow_blank: true
-  validates :categoria, presence: true
+  validates :categoria, presence: true, inclusion: { in: CATEGORIAS }
   validates :recurrence_type, inclusion: { in: %w[single weekly] }, allow_blank: true
 
   def recurring?

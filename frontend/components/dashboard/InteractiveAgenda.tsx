@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Repeat, CalendarDays, Clock, ArrowRight } from "lucide-react";
-import { getCategoryStyle } from "@/lib/categories";
+import { getTaskCategoryConfig } from "@/lib/taskCategories";
 import type { Task, TasksByDay } from "@/types";
 
 interface InteractiveAgendaProps {
@@ -132,7 +132,8 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
           ) : (
             <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
               {selectedTasks.map(task => {
-                const categoryStyle = getCategoryStyle(task.categoria);
+                const categoryConfig = getTaskCategoryConfig(task.categoria);
+                const CategoryIcon = categoryConfig.icon;
 
                 return (
                   <div
@@ -142,7 +143,7 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
                         className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: task.completed ? "#30A46C" : categoryStyle.color }}
+                        style={{ backgroundColor: task.completed ? "#30A46C" : categoryConfig.color }}
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -159,16 +160,19 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
                         {task.description && (
                           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{task.description}</p>
                         )}
-                        <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-1 flex items-center gap-1.5">
+                        <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-1 flex items-center gap-1.5 flex-wrap">
                           <span className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400">
                             <Clock size={11} /> {formatTaskTime(task.due_date)}
                           </span>
                           <span>•</span>
-                          <span>{task.categoria || "Sem categoria"}</span>
+                          <span className={`inline-flex items-center gap-1 text-[10.5px] font-semibold px-1.5 py-0.5 rounded border ${categoryConfig.badgeClass}`}>
+                            <CategoryIcon size={10} strokeWidth={2.5} />
+                            <span>{task.categoria || "Estudos"}</span>
+                          </span>
                         </p>
                       </div>
                     </div>
-                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ml-3 ${task.completed ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50" : categoryStyle.badgeClass}`}>
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ml-3 ${task.completed ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"}`}>
                       {task.completed ? "Concluída" : "Pendente"}
                     </span>
                   </div>
