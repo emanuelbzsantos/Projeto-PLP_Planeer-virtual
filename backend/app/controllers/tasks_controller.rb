@@ -79,6 +79,7 @@ class TasksController < ApplicationController
       :categoria,
       :recurring,
       :recurrence_type,
+      :status,
       { recurring_days: [] }
     ])
   end

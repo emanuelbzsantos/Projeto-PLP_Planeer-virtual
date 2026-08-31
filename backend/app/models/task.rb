@@ -17,6 +17,14 @@ class Task < ApplicationRecord
   validates :categoria, presence: true, inclusion: { in: CATEGORIAS }
   validates :recurrence_type, inclusion: { in: %w[single weekly] }, allow_blank: true
 
+  enum :status, {
+    pendente: "pendente",
+    executada: "executada",
+    parcialmente_executada: "parcialmente_executada",
+    cancelada: "cancelada",
+    adiada: "adiada"
+  }
+  
   def recurring?
     super || recurrence_type == "weekly"
   end
