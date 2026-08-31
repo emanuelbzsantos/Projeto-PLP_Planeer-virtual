@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { apiGet } from "@/hooks/useApi";
-import { AlertCircle, Search, FileText, CheckCircle, Clock, Target, CalendarDays, Download, Printer } from "lucide-react";
+import { AlertCircle, Search, FileText, CheckCircle, Clock, Target, CalendarDays, Download, Printer, FileDown } from "lucide-react";
 import * as XLSX from "xlsx";
 import type { Task, Meta } from "@/types";
 
@@ -27,7 +27,6 @@ export default function RelatoriosPage() {
     setIsLoading(true);
     setError(false);
     try {
-      // Montar query string
       const params = new URLSearchParams({ type: reportType });
       if (startDate) params.append("start_date", startDate);
       if (endDate) params.append("end_date", endDate);
@@ -69,7 +68,6 @@ export default function RelatoriosPage() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório");
     
-    // Configura a largura das colunas
     const maxWidths = excelData.reduce((acc, row) => {
       Object.keys(row).forEach((key, i) => {
         const val = row[key] ? row[key].toString() : "";
@@ -82,16 +80,48 @@ export default function RelatoriosPage() {
     XLSX.writeFile(workbook, `relatorio_${reportType}_${new Date().toISOString().slice(0,10)}.xlsx`);
   };
 
+  const handleDownloadPDF = async () => {
+    if (!results || results.length === 0) return;
+    
+    // Importa o html2pdf dinamicamente só quando o botão é clicado
+    const html2pdf = (await import("html2pdf.js")).default;
+    
+    // Pega o elemento do relatório clássico (que está invisível na tela)
+    const element = document.getElementById("classic-report");
+    
+    if (element) {
+      // Temporariamente remove a classe hidden para o html2pdf conseguir renderizar
+      element.classList.remove("hidden");
+      element.classList.remove("print:block");
+      element.style.display = "block";
+      
+      const opt = {
+        margin:       10,
+        filename:     `relatorio_${reportType}_${new Date().toISOString().slice(0,10)}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      
+      // Restaura as classes depois da exportação
+      element.style.display = "";
+      element.classList.add("hidden");
+      element.classList.add("print:block");
+    }
+  };
+
   return (
     <div className="w-full max-w-[1400px] mx-auto flex flex-col h-[calc(100vh-5rem)] px-6 lg:px-8 py-6 animate-fade-in">
-      <header className="flex justify-between items-end mb-6 print:mb-8">
+      <header className="flex justify-between items-end mb-6 print:hidden">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Gerador de Relatórios</h1>
-          <p className="text-sm md:text-base text-slate-500 mt-1 print:hidden">
+          <p className="text-sm md:text-base text-slate-500 mt-1">
             Filtre e exporte dados detalhados sobre suas tarefas e metas.
           </p>
         </div>
-        <div className="print:hidden flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <button 
             onClick={handleDownloadExcel}
             disabled={!results || results.length === 0}
@@ -100,13 +130,23 @@ export default function RelatoriosPage() {
             <Download size={18} />
             Exportar XLSX
           </button>
+          
+          <button 
+            onClick={handleDownloadPDF}
+            disabled={!results || results.length === 0}
+            className="flex items-center gap-2 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 disabled:hover:bg-rose-50 text-rose-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+          >
+            <FileDown size={18} />
+            Baixar PDF
+          </button>
+          
           <button 
             onClick={() => window.print()}
             disabled={!results || results.length === 0}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 disabled:opacity-50 disabled:hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
           >
             <Printer size={18} />
-            Imprimir PDF
+            Imprimir
           </button>
         </div>
       </header>
@@ -177,7 +217,7 @@ export default function RelatoriosPage() {
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full h-10 bg-[var(--color-primary)] hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -192,8 +232,8 @@ export default function RelatoriosPage() {
         </form>
       </div>
 
-      {/* Tabela de Resultados */}
-      <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+      {/* Tabela de Resultados Interativa (Oculta na Impressão) */}
+      <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col print:hidden">
         {error ? (
           <div className="flex-1 flex flex-col items-center justify-center text-red-500 p-8">
             <AlertCircle size={48} className="mb-4 opacity-50" />
@@ -271,10 +311,83 @@ export default function RelatoriosPage() {
           </div>
         )}
       </div>
-      
-      {/* Título de Impressão (Só aparece no papel) */}
-      <div className="hidden print:block fixed bottom-4 right-4 text-xs text-slate-400">
-        Gerado em {new Date().toLocaleString('pt-BR')} pelo PlannerVirtual
+
+      {/* --- RELATÓRIO CLÁSSICO (ESCONDIDO NA WEB, USADO NO PDF E NA IMPRESSORA) --- */}
+      <div 
+        id="classic-report" 
+        className="hidden print:block w-full bg-white text-black font-sans text-xs p-6"
+      >
+        {/* Cabeçalho */}
+        <div className="flex justify-between items-center border-b-2 border-black pb-2 mb-2">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 border border-black flex items-center justify-center font-bold text-[10px] text-center p-1">
+              Sem Logo
+            </div>
+            <h1 className="text-xl font-bold uppercase tracking-widest">PlannerVirtual</h1>
+          </div>
+          <div className="text-right text-[10px] space-y-0.5">
+            <p><strong>Terminal:</strong> SISTEMA WEB</p>
+            <p><strong>Usuário:</strong> Desconhecido</p>
+            <p><strong>Relatório:</strong> REL_{reportType.toUpperCase()}</p>
+            <p><strong>Data/Hora:</strong> {new Date().toLocaleString('pt-BR')}</p>
+          </div>
+        </div>
+
+        {/* Título Principal */}
+        <div className="bg-[#2D2D2D] text-white font-bold text-xs uppercase p-1.5 mb-1 tracking-wider">
+          RELATÓRIO DE {reportType === 'tasks' ? 'TAREFAS' : 'METAS'}
+        </div>
+
+        {/* Subtítulo */}
+        <div className="bg-[#EAEAEA] text-black font-bold text-[10px] uppercase p-1 mb-2 border-y border-black tracking-wider">
+          TIPO / DESCRIÇÃO: {reportType === 'tasks' ? 'Detalhamento Analítico de Tarefas Cadastradas' : 'Listagem Consolidada de Metas'}
+        </div>
+
+        {/* Tabela */}
+        <table className="w-full text-left border-collapse border border-black text-[9px] mb-4">
+          <thead className="bg-[#F5F5F5] border-b-2 border-black">
+            <tr>
+              <th className="p-1 border border-black whitespace-nowrap">ID</th>
+              <th className="p-1 border border-black w-full">TÍTULO</th>
+              {reportType === "tasks" && <th className="p-1 border border-black">CATEGORIA</th>}
+              <th className="p-1 border border-black whitespace-nowrap">DATA LIMITE</th>
+              <th className="p-1 border border-black whitespace-nowrap">STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results?.map((item) => (
+              <tr key={item.id} className="border-b border-gray-300">
+                <td className="p-1 border border-black font-mono">#{item.id}</td>
+                <td className="p-1 border border-black font-bold">{item.title}</td>
+                {reportType === "tasks" && (
+                  <td className="p-1 border border-black">{item.category || "-"}</td>
+                )}
+                <td className="p-1 border border-black">
+                  {(item.due_date || item.deadline) 
+                    ? new Date(item.due_date || item.deadline).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) 
+                    : "-"}
+                </td>
+                <td className="p-1 border border-black uppercase font-bold">
+                  {reportType === "tasks" 
+                    ? (item.completed ? 'CONCLUÍDA' : 'PENDENTE')
+                    : item.status.replace('_', ' ')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Filtros */}
+        <div className="bg-[#2D2D2D] text-white font-bold text-xs uppercase p-1.5 mb-2 tracking-wider">
+          FILTROS APLICADOS
+        </div>
+        <div className="text-[10px] space-y-0.5 font-mono">
+          <p>Tipo de Relatório.....: {reportType === 'tasks' ? 'Tarefas' : 'Metas'}</p>
+          <p>Data Inicial..........: {startDate ? new Date(startDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Todos os registros'}</p>
+          <p>Data Final............: {endDate ? new Date(endDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Todos os registros'}</p>
+          <p>Status Selecionado....: {statusFilter.toUpperCase()}</p>
+          <p>Total de Registros....: {results?.length || 0}</p>
+        </div>
       </div>
     </div>
   );
