@@ -24,7 +24,9 @@ class Task < ApplicationRecord
     cancelada: "cancelada",
     adiada: "adiada"
   }
-  
+
+  before_validation :sync_status_and_completed
+
   def recurring?
     super || recurrence_type == "weekly"
   end
@@ -40,6 +42,18 @@ class Task < ApplicationRecord
       end
     else
       due_date.present? && DIAS_SEMANA[due_date.wday] == dia
+    end
+  end
+
+  private
+
+  def sync_status_and_completed
+    if will_save_change_to_status? && !will_save_change_to_completed?
+      self.completed = executada?
+    elsif will_save_change_to_completed? && !will_save_change_to_status?
+      self.status = completed? ? "executada" : "pendente"
+    elsif status.present?
+      self.completed = executada?
     end
   end
 end

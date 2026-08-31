@@ -54,15 +54,15 @@ export default function RelatoriosPage() {
       excelData = results.map((task: Task) => ({
         "ID": task.id,
         "Título": task.title,
-        "Categoria": task.category || "Geral",
+        "Categoria": task.categoria || "Geral",
         "Data Limite": task.due_date ? new Date(task.due_date).toLocaleDateString("pt-BR") : "Sem prazo",
         "Status": task.completed ? "Concluída" : "Pendente"
       }));
     } else {
       excelData = results.map((meta: Meta) => ({
         "ID": meta.id,
-        "Título": meta.title,
-        "Data Limite": meta.deadline ? new Date(meta.deadline).toLocaleDateString("pt-BR") : "Sem prazo",
+        "Título": meta.descricao,
+        "Data Limite": meta.periodo ? meta.periodo.toUpperCase() : "Sem prazo",
         "Status": meta.status.replace('_', ' ')
       }));
     }
@@ -127,14 +127,14 @@ export default function RelatoriosPage() {
           {results?.map((item) => (
             <tr key={item.id} className="border-b border-gray-300">
               <td className="p-1 border border-black font-mono">#{item.id}</td>
-              <td className="p-1 border border-black font-bold">{item.title}</td>
+              <td className="p-1 border border-black font-bold">{item.title || item.descricao}</td>
               {reportType === "tasks" && (
-                <td className="p-1 border border-black">{item.category || "-"}</td>
+                <td className="p-1 border border-black">{item.categoria || "-"}</td>
               )}
               <td className="p-1 border border-black">
-                {(item.due_date || item.deadline) 
-                  ? new Date(item.due_date || item.deadline).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) 
-                  : "-"}
+                {item.due_date 
+                  ? new Date(item.due_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) 
+                  : (item.periodo ? item.periodo.toUpperCase() : "-")}
               </td>
               <td className="p-1 border border-black uppercase font-bold">
                 {reportType === "tasks" 
@@ -316,20 +316,20 @@ export default function RelatoriosPage() {
                   {results.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="py-3 px-4 text-sm text-slate-400 font-mono">#{item.id}</td>
-                      <td className="py-3 px-4 text-sm font-medium text-slate-700">{item.title}</td>
+                      <td className="py-3 px-4 text-sm font-medium text-slate-700">{item.title || item.descricao}</td>
                       
                       {reportType === "tasks" && (
                         <td className="py-3 px-4">
                           <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 capitalize">
-                            {item.category || "Geral"}
+                            {item.categoria || "Geral"}
                           </span>
                         </td>
                       )}
                       
                       <td className="py-3 px-4 text-sm text-slate-600">
-                        {(item.due_date || item.deadline) 
-                          ? new Date(item.due_date || item.deadline).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) 
-                          : <span className="text-slate-400 italic">Sem prazo</span>}
+                        {reportType === "tasks" 
+                          ? (item.due_date ? new Date(item.due_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) : <span className="text-slate-400 italic">Sem prazo</span>)
+                          : <span className="capitalize">{item.periodo || "-"}</span>}
                       </td>
                       
                       <td className="py-3 px-4">

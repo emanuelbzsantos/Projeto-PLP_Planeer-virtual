@@ -66,17 +66,17 @@ class ReportsController < ApplicationController
       tasks = tasks.where('due_date >= ?', start_date) if start_date
       tasks = tasks.where('due_date <= ?', end_date) if end_date
       
-      if status == 'completed'
+      if status == 'completed' || status == 'executada'
         tasks = tasks.where(completed: true)
-      elsif status == 'pending'
+      elsif status == 'pending' || status == 'pendente'
         tasks = tasks.where(completed: false)
       end
       
       render json: tasks, status: :ok
     elsif report_type == 'metas'
       metas = user.metas
-      metas = metas.where('deadline >= ?', start_date) if start_date
-      metas = metas.where('deadline <= ?', end_date) if end_date
+      metas = metas.where('created_at >= ?', start_date) if start_date
+      metas = metas.where('created_at <= ?', end_date) if end_date
       
       if status && status != 'all'
         metas = metas.where(status: status)
