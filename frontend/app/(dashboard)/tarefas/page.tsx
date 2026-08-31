@@ -2,11 +2,12 @@
 
 import { useState, useMemo } from "react";
 import { useTasks } from "@/hooks/useTasks";
-import { Plus, Search, CalendarDays, X, CheckCircle2, Clock } from "lucide-react";
+import { Plus, Search, CalendarDays, X, CheckCircle2, Clock, Filter } from "lucide-react";
 import { TaskCard } from "@/components/tarefas/TaskCard";
 import { TaskForm } from "@/components/tarefas/TaskForm";
 import { Modal } from "@/components/ui/Modal";
 import type { Task } from "@/types";
+import { TASK_CATEGORIES, getTaskCategoryConfig } from "@/lib/taskCategories";
 
 const DIAS_SEMANA = [
   { full: "Domingo", short: "Dom" },
@@ -25,6 +26,7 @@ export default function TarefasPage() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "completed">("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const weekDays = useMemo(() => {
     const today = new Date();
@@ -172,6 +174,43 @@ export default function TarefasPage() {
         </div>
       </header>
 
+      {/* Barra de Filtro por Categoria de Lembrete */}
+      <div className="shrink-0 flex items-center gap-1.5 overflow-x-auto pb-2 mb-2 scrollbar-thin">
+        <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 mr-1 flex items-center gap-1 shrink-0">
+          <Filter size={12} />
+          Lembretes:
+        </span>
+        <button
+          onClick={() => setCategoryFilter("all")}
+          className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            categoryFilter === "all"
+              ? "bg-[var(--color-primary)] text-white shadow-2xs font-semibold"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700"
+          }`}
+        >
+          Todos
+        </button>
+        {TASK_CATEGORIES.map((cat) => {
+          const config = getTaskCategoryConfig(cat);
+          const Icon = config.icon;
+          const isSelected = categoryFilter === cat;
+          return (
+            <button
+              key={cat}
+              onClick={() => setCategoryFilter(isSelected ? "all" : cat)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 border shrink-0 ${
+                isSelected
+                  ? `${config.badgeClass} ring-2 ring-[var(--color-primary)] font-bold shadow-2xs`
+                  : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
+              }`}
+            >
+              <Icon size={12} className="shrink-0" />
+              <span>{cat}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <Modal
         open={isModalOpen}
         onClose={closeModal}
@@ -195,12 +234,17 @@ export default function TarefasPage() {
             return true;
           });
 
+          const listaFiltradaPorCategoria = listaFiltradaPorStatus.filter((t) => {
+            if (categoryFilter === "all") return true;
+            return t.categoria === categoryFilter;
+          });
+
           const listaFiltrada = searchTerm.trim() !== ""
-            ? listaFiltradaPorStatus.filter((task) =>
+            ? listaFiltradaPorCategoria.filter((task) =>
                 task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 task.description?.toLowerCase().includes(searchTerm.toLowerCase())
               )
-            : listaFiltradaPorStatus;
+            : listaFiltradaPorCategoria;
 
           const listaOrdenada = [...listaFiltrada].sort((a, b) => {
             const timeA = new Date(a.due_date).getTime();

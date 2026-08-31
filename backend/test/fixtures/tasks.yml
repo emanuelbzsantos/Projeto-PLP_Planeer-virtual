@@ -13,7 +13,7 @@ two:
   description: Comprar queijo coalho
   due_date: 2026-08-25 14:00:00
   completed: true
-  categoria: Pessoal
+  categoria: Compras
   user: usuario_teste
 
 tarefa_recorrente:
@@ -24,7 +24,7 @@ tarefa_recorrente:
   recurring: true
   recurrence_type: weekly
   recurring_days: "{Segunda-feira,Quinta-feira}"
-  categoria: Trabalho
+  categoria: Reuniões
   user: usuario_teste
 
 tarefa_outro_usuario:
@@ -32,5 +32,5 @@ tarefa_outro_usuario:
   description: Não deve aparecer para usuario_teste
   due_date: 2026-08-25 10:00:00
   completed: false
-  categoria: Trabalho
+  categoria: Reuniões
   user: outro_usuario

@@ -69,7 +69,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
           due_date: "2026-08-24 08:00:00",
           recurring: true,
           recurrence_type: "weekly",
-          categoria: "Saúde",
+          categoria: "Exercícios",
           recurring_days: [ "Segunda-feira", "Quarta-feira", "Sexta-feira" ]
         }
       }, as: :json
@@ -80,7 +80,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Treino semanal", body["title"]
     assert_equal true, body["recurring"]
     assert_equal "weekly", body["recurrence_type"]
-    assert_equal "Saúde", body["categoria"]
+    assert_equal "Exercícios", body["categoria"]
     assert_equal [ "Segunda-feira", "Quarta-feira", "Sexta-feira" ], body["recurring_days"]
   end
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Repeat, Bell, Check } from 'lucide-react';
 import type { Task, RecurrenceType } from '@/types';
-import { CATEGORIES } from '@/lib/categories';
+import { TASK_CATEGORIES, getTaskCategoryConfig } from '@/lib/taskCategories';
 import { FormInput, FormTextarea, FormSelect } from '@/components/ui/FormField';
 
 interface TaskFormProps {
@@ -48,7 +48,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [categoria, setCategoria] = useState<string>('Pessoal');
+  const [categoria, setCategoria] = useState<string>('Estudos');
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('single');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,7 +59,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
     if (initialTask) {
       setTitle(initialTask.title || '');
       setDescription(initialTask.description || '');
-      setCategoria(initialTask.categoria || 'Pessoal');
+      setCategoria(initialTask.categoria || 'Estudos');
       setDueDate(formatForDatetimeLocal(initialTask.due_date));
       const isWeekly = initialTask.recurrence_type === 'weekly' || !!initialTask.recurring;
       setRecurrenceType(isWeekly ? 'weekly' : 'single');
@@ -67,7 +67,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
     } else {
       setTitle('');
       setDescription('');
-      setCategoria('Pessoal');
+      setCategoria('Estudos');
       setDueDate(defaultDate ? defaultDate.slice(0, 16) : '');
       setRecurrenceType('single');
 
@@ -170,12 +170,12 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
 
       <FormSelect
         id="task_categoria"
-        label="Categoria"
+        label="Tipo de Lembrete / Tarefa"
         required
         value={categoria}
         onChange={(e) => setCategoria(e.target.value)}
       >
-        {CATEGORIES.map((cat) => (
+        {TASK_CATEGORIES.map((cat) => (
           <option key={cat} value={cat}>{cat}</option>
         ))}
       </FormSelect>

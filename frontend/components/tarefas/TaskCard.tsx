@@ -1,7 +1,7 @@
 import React from 'react';
 import { Trash2, Check, Repeat, Clock, Pencil } from 'lucide-react';
 import type { Task } from '@/types';
-import { getCategoryStyle } from '@/lib/categories';
+import { getTaskCategoryConfig } from '@/lib/taskCategories';
 
 interface TaskCardProps {
   task: Task;
@@ -11,7 +11,8 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
-  const categoryStyle = getCategoryStyle(task.categoria);
+  const categoryConfig = getTaskCategoryConfig(task.categoria);
+  const CategoryIcon = categoryConfig.icon;
 
   const dateInfo = React.useMemo(() => {
     if (!task.due_date) return null;
@@ -62,7 +63,7 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
 
   return (
     <div
-      style={{ borderLeftColor: categoryStyle.color }}
+      style={{ borderLeftColor: categoryConfig.color }}
       className={`group relative flex items-start gap-2 p-2.5 rounded-xl border border-l-4 transition-all duration-200 hover:shadow-xs min-w-0 ${
         task.completed
           ? 'bg-[#F8F9FC]/70 dark:bg-slate-900/40 border-transparent opacity-75'
@@ -150,9 +151,9 @@ export function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
             </span>
           )}
 
-          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md shrink-0 ${categoryStyle.badgeClass}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${categoryStyle.dotClass}`} />
-            {task.categoria || 'Sem categoria'}
+          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md shrink-0 border ${categoryConfig.badgeClass}`}>
+            <CategoryIcon size={10} strokeWidth={2.5} className="shrink-0" />
+            <span>{task.categoria || 'Estudos'}</span>
           </span>
 
           {task.recurring && (
