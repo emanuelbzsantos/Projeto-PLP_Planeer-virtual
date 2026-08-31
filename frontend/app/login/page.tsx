@@ -52,7 +52,7 @@ export default function AuthPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)] p-4 w-full">
-            <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-sm border border-[var(--color-border)]">
+            <div className="w-full max-w-md bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-[var(--color-border)] dark:border-slate-800">
                 <div className="flex justify-center mb-6">
                     <div className="flex items-center gap-2">
                         <div className="bg-[var(--color-primary)] text-white p-1.5 rounded-lg flex items-center justify-center h-8 w-8 font-bold">
@@ -69,7 +69,7 @@ export default function AuthPage() {
                 </h2>
 
                 {errorMessage && (
-                    <div className="mb-4 p-3 rounded-lg bg-[#FEF2F2] text-[var(--color-danger)] text-sm border border-[#FEE2E2]">
+                    <div className="mb-4 p-3 rounded-lg bg-[#FEF2F2] dark:bg-rose-950/30 text-[var(--color-danger)] text-sm border border-[#FEE2E2] dark:border-rose-900/50">
                         {errorMessage}
                     </div>
                 )}
@@ -85,7 +85,7 @@ export default function AuthPage() {
                                 required
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
+                                className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
                             />
                         </div>
                     )}
@@ -99,7 +99,7 @@ export default function AuthPage() {
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
+                            className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
                         />
                     </div>
 
@@ -112,7 +112,7 @@ export default function AuthPage() {
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
+                            className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all"
                         />
                     </div>
 

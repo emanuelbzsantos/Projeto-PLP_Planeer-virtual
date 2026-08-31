@@ -93,16 +93,15 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-      {/* Seção Agenda: Ocupa 8 colunas de 12 (~67% da tela) */}
-      <section className="lg:col-span-8 bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 md:p-8 flex flex-col justify-between">
+      <section className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/80 dark:border-slate-800 p-6 md:p-8 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 <CalendarDays size={20} className="text-[var(--color-primary)]" />
                 Sua Agenda
               </h2>
-              <p className="text-xs md:text-sm text-slate-400 font-medium mt-1 capitalize">
+              <p className="text-xs md:text-sm text-slate-400 dark:text-slate-500 font-medium mt-1 capitalize">
                 {selectedDateLabel}{isSelectedToday ? " • Hoje" : ""}
               </p>
             </div>
@@ -114,12 +113,12 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
 
           {loading ? (
             <div className="space-y-3 animate-pulse">
-              <div className="h-16 bg-slate-100 rounded-xl"></div>
-              <div className="h-16 bg-slate-100 rounded-xl"></div>
+              <div className="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+              <div className="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
             </div>
           ) : selectedTasks.length === 0 ? (
-            <div className="text-center py-14 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-              <p className="text-sm text-slate-400 font-medium">Nenhuma tarefa agendada para esta data.</p>
+            <div className="text-center py-14 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+              <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Nenhuma tarefa agendada para esta data.</p>
               {!isSelectedToday && (
                 <button
                   type="button"
@@ -138,7 +137,7 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
                 return (
                   <div
                     key={task.id}
-                    className={`group flex items-center justify-between p-3.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200/60 hover:border-slate-300/80 transition-all rounded-xl ${task.completed ? "opacity-65" : ""}`}
+                    className={`group flex items-center justify-between p-3.5 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700 hover:border-slate-300/80 dark:hover:border-slate-600 transition-all rounded-xl ${task.completed ? "opacity-65" : ""}`}
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
@@ -147,21 +146,21 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className={`text-sm font-semibold text-slate-800 group-hover:text-[var(--color-primary)] transition-colors ${task.completed ? "line-through text-slate-400" : ""}`}>
+                          <h3 className={`text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[var(--color-primary)] transition-colors ${task.completed ? "line-through text-slate-400 dark:text-slate-500" : ""}`}>
                             {task.title}
                           </h3>
                           {task.recurring && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded">
                               <Repeat size={10} strokeWidth={2.5} />
                               Semanal
                             </span>
                           )}
                         </div>
                         {task.description && (
-                          <p className="text-xs text-slate-500 mt-0.5 truncate">{task.description}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{task.description}</p>
                         )}
-                        <p className="text-xs text-slate-400 font-medium mt-1 flex items-center gap-1.5">
-                          <span className="inline-flex items-center gap-1 text-slate-500">
+                        <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-1 flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400">
                             <Clock size={11} /> {formatTaskTime(task.due_date)}
                           </span>
                           <span>•</span>
@@ -169,7 +168,7 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
                         </p>
                       </div>
                     </div>
-                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ml-3 ${task.completed ? "bg-emerald-50 text-emerald-600 border border-emerald-200/60" : categoryStyle.badgeClass}`}>
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ml-3 ${task.completed ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50" : categoryStyle.badgeClass}`}>
                       {task.completed ? "Concluída" : "Pendente"}
                     </span>
                   </div>
@@ -180,12 +179,11 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
         </div>
       </section>
 
-      {/* Seção Calendário: Ocupa 4 colunas de 12 (~33% da tela) */}
-      <section className="lg:col-span-4 bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 flex flex-col justify-between">
+      <section className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/80 dark:border-slate-800 p-6 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h2 className="text-base font-bold text-slate-800 capitalize">{calendarMonthLabel}</h2>
+              <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 capitalize">{calendarMonthLabel}</h2>
               <button
                 type="button"
                 onClick={selectToday}
@@ -219,7 +217,7 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
 
           <div className="grid grid-cols-7 gap-y-3 gap-x-1 text-center mb-2">
             {["D", "S", "T", "Q", "Q", "S", "S"].map((day, index) => (
-              <div key={index} className="text-[11px] font-bold text-slate-400">{day}</div>
+              <div key={index} className="text-[11px] font-bold text-slate-400 dark:text-slate-500">{day}</div>
             ))}
 
             {Array.from({ length: firstWeekday }).map((_, index) => (
@@ -245,7 +243,7 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
                       ? "bg-[var(--color-primary)] text-white shadow-xs"
                       : isToday
                         ? "text-[var(--color-primary)] bg-[var(--color-primary-light)] font-bold ring-1 ring-[var(--color-primary)]"
-                        : "text-slate-700 hover:bg-slate-100"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                 >
                   {day}

@@ -169,7 +169,7 @@ export default function ConfiguresPage() {
       </header>
 
       {/* Painel Unificado: Dados do Usuário */}
-      <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm mb-6">
+      <div className="bg-white dark:bg-slate-900 border border-[var(--color-border)] dark:border-slate-800 rounded-2xl p-6 shadow-sm mb-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-[var(--color-text)] flex items-center gap-2">
             <User className="text-[var(--color-primary)]" size={20} />
@@ -188,14 +188,14 @@ export default function ConfiguresPage() {
         </div>
 
         {successMessage && (
-          <div className="mb-6 p-3 rounded-xl bg-[#F0FDF4] text-[var(--color-success)] text-sm flex items-center gap-2 border border-[#DCFCE7]">
+          <div className="mb-6 p-3 rounded-xl bg-[#F0FDF4] dark:bg-emerald-950/30 text-[var(--color-success)] text-sm flex items-center gap-2 border border-[#DCFCE7] dark:border-emerald-900/50">
             <CheckCircle size={16} />
             {successMessage}
           </div>
         )}
 
         {errorMessage && (
-          <div className="mb-6 p-3 rounded-xl bg-[#FEF2F2] text-[var(--color-danger)] text-sm flex items-center gap-2 border border-[#FEE2E2]">
+          <div className="mb-6 p-3 rounded-xl bg-[#FEF2F2] dark:bg-rose-950/30 text-[var(--color-danger)] text-sm flex items-center gap-2 border border-[#FEE2E2] dark:border-rose-900/50">
             <AlertTriangle size={16} />
             {errorMessage}
           </div>
@@ -205,8 +205,8 @@ export default function ConfiguresPage() {
           !isEditing ? (
             /* MODO DE VISUALIZAÇÃO ESTÁTICA */
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] rounded-2xl border border-[var(--color-border)]">
-                <div className="bg-white p-3 rounded-xl border border-[var(--color-border)] text-[var(--color-primary)]">
+              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] dark:bg-slate-800/60 rounded-2xl border border-[var(--color-border)] dark:border-slate-700">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-[var(--color-border)] dark:border-slate-700 text-[var(--color-primary)]">
                   <User size={24} />
                 </div>
                 <div>
@@ -215,8 +215,8 @@ export default function ConfiguresPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] rounded-2xl border border-[var(--color-border)]">
-                <div className="bg-white p-3 rounded-xl border border-[var(--color-border)] text-[var(--color-primary)]">
+              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] dark:bg-slate-800/60 rounded-2xl border border-[var(--color-border)] dark:border-slate-700">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-[var(--color-border)] dark:border-slate-700 text-[var(--color-primary)]">
                   <Mail size={24} />
                 </div>
                 <div>
@@ -225,8 +225,8 @@ export default function ConfiguresPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] rounded-2xl border border-[var(--color-border)]">
-                <div className="bg-white p-3 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)]">
+              <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] dark:bg-slate-800/60 rounded-2xl border border-[var(--color-border)] dark:border-slate-700">
+                <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-[var(--color-border)] dark:border-slate-700 text-[var(--color-text-secondary)]">
                   <Key size={24} />
                 </div>
                 <div>
@@ -250,7 +250,7 @@ export default function ConfiguresPage() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
 
@@ -263,12 +263,12 @@ export default function ConfiguresPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
               </div>
 
-              <hr className="border-[var(--color-border)]" />
+              <hr className="border-[var(--color-border)] dark:border-slate-700" />
 
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Segurança (Alteração de Senha)</h3>
@@ -285,7 +285,7 @@ export default function ConfiguresPage() {
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     placeholder="Insira sua senha atual"
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
 
@@ -298,7 +298,7 @@ export default function ConfiguresPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Mínimo de 6 caracteres"
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
 
@@ -311,7 +311,7 @@ export default function ConfiguresPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repita a nova senha"
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
               </div>
@@ -331,7 +331,7 @@ export default function ConfiguresPage() {
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="flex items-center justify-center gap-1.5 px-4 py-2 border border-[var(--color-border)] text-[var(--color-text)] font-medium rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 border border-[var(--color-border)] dark:border-slate-700 text-[var(--color-text)] font-medium rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                 >
                   <X size={16} />
                   Cancelar
@@ -345,7 +345,7 @@ export default function ConfiguresPage() {
       </div>
 
       {/* Seção: Logout */}
-      <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-[var(--color-border)] dark:border-slate-800 rounded-2xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold mb-2 text-[var(--color-text)]">Encerrar Sessão</h2>
         <p className="text-sm text-[var(--color-text-secondary)] mb-6">
           Isso encerrará sua sessão atual no Planner Virtual. Para voltar, você precisará inserir suas credenciais de login novamente.
@@ -354,7 +354,7 @@ export default function ConfiguresPage() {
         <button
           onClick={handleLogout}
           disabled={logoutLoading}
-          className="flex items-center gap-2 bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[var(--color-danger)] px-5 py-2.5 rounded-xl transition-all duration-200 font-semibold border border-[#FEE2E2] text-sm"
+          className="flex items-center gap-2 bg-[#FEF2F2] dark:bg-rose-950/30 hover:bg-[#FEE2E2] dark:hover:bg-rose-950/50 text-[var(--color-danger)] px-5 py-2.5 rounded-xl transition-all duration-200 font-semibold border border-[#FEE2E2] dark:border-rose-900/50 text-sm"
         >
           <LogOut size={18} />
           {logoutLoading ? "Saindo..." : "Sair da conta"}

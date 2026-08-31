@@ -18,7 +18,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         onClick={onClose} 
       />
       {/* Content */}
-      <div className="relative bg-white rounded-2xl shadow-xl border border-[var(--color-border)] p-6 w-full max-w-md mx-auto animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-[var(--color-border)] dark:border-slate-700 p-6 w-full max-w-md mx-auto animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-lg font-semibold text-[var(--color-text)]">{title}</h2>
           <button 

@@ -28,9 +28,8 @@ export default function TarefasPage() {
 
   const weekDays = useMemo(() => {
     const today = new Date();
-    const currentDayOfWeek = today.getDay(); // 0 = Domingo
-    
-    // Início da semana atual (Domingo)
+    const currentDayOfWeek = today.getDay();
+
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - currentDayOfWeek);
 
@@ -49,7 +48,6 @@ export default function TarefasPage() {
         dateForDay.getMonth() === today.getMonth() &&
         dateForDay.getFullYear() === today.getFullYear();
 
-      // Data padrão no formato aceito pelo input datetime-local às 09:00
       const defaultIsoDate = `${dateForDay.getFullYear()}-${pad(dateForDay.getMonth() + 1)}-${dayOfMonth}T09:00`;
 
       return {
@@ -90,7 +88,6 @@ export default function TarefasPage() {
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col p-5 md:p-6 w-full mx-auto overflow-hidden">
-      {/* Top Header */}
       <header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
           <div className="bg-[var(--color-primary-light)] p-2.5 rounded-2xl text-[var(--color-primary)] shadow-xs">
@@ -107,15 +104,14 @@ export default function TarefasPage() {
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Seletor de Filtro de Status (Todas / Pendentes / Concluídas) */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs font-semibold">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700 text-xs font-semibold">
             <button
               type="button"
               onClick={() => setStatusFilter("all")}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 statusFilter === "all"
-                  ? "bg-white text-slate-800 shadow-2xs font-bold"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-2xs font-bold"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               Todas
@@ -125,8 +121,8 @@ export default function TarefasPage() {
               onClick={() => setStatusFilter("pending")}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
                 statusFilter === "pending"
-                  ? "bg-white text-[var(--color-primary)] shadow-2xs font-bold"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-slate-700 text-[var(--color-primary)] shadow-2xs font-bold"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               <Clock size={12} />
@@ -137,8 +133,8 @@ export default function TarefasPage() {
               onClick={() => setStatusFilter("completed")}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
                 statusFilter === "completed"
-                  ? "bg-white text-emerald-600 shadow-2xs font-bold"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-2xs font-bold"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               <CheckCircle2 size={12} />
@@ -146,20 +142,19 @@ export default function TarefasPage() {
             </button>
           </div>
 
-          {/* Barra de Pesquisa */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
             <input
               type="text"
               placeholder="Pesquisar tarefas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all w-52 md:w-60 shadow-xs text-sm"
+              className="pl-9 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all w-52 md:w-60 shadow-xs text-sm"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full"
                 title="Limpar pesquisa"
               >
                 <X size={14} />
@@ -167,7 +162,6 @@ export default function TarefasPage() {
             )}
           </div>
 
-          {/* Botão Nova Tarefa */}
           <button
             onClick={() => openCreateForm()}
             className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-4 py-2 rounded-xl transition-all font-medium text-sm shadow-xs hover:shadow-sm whitespace-nowrap cursor-pointer"
@@ -178,33 +172,29 @@ export default function TarefasPage() {
         </div>
       </header>
 
-      {/* Modal de Criação / Edição de Tarefas */}
-      <Modal 
-        open={isModalOpen} 
-        onClose={closeModal} 
+      <Modal
+        open={isModalOpen}
+        onClose={closeModal}
         title={editingTask ? "Editar Tarefa" : "Nova Tarefa"}
       >
-        <TaskForm 
-          onSubmit={handleFormSubmit} 
-          onCancel={closeModal} 
+        <TaskForm
+          onSubmit={handleFormSubmit}
+          onCancel={closeModal}
           defaultDate={selectedDate}
           initialTask={editingTask}
         />
       </Modal>
 
-      {/* Grid de 7 colunas - 100% da largura útil e altura restante com scroll interno */}
       <div className="flex-1 min-h-0 grid grid-cols-7 gap-3 w-full items-stretch pb-2">
         {weekDays.map((dia) => {
           const lista = tasks[dia.full] || [];
-          
-          // Filtro por status (Todas, Pendentes, Concluídas)
+
           const listaFiltradaPorStatus = lista.filter((t) => {
             if (statusFilter === "pending") return !t.completed;
             if (statusFilter === "completed") return t.completed;
             return true;
           });
 
-          // Filtro de busca em tempo real
           const listaFiltrada = searchTerm.trim() !== ""
             ? listaFiltradaPorStatus.filter((task) =>
                 task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -212,7 +202,6 @@ export default function TarefasPage() {
               )
             : listaFiltradaPorStatus;
 
-          // Ordenação crescente por Data e Horário (do mais próximo para o mais distante)
           const listaOrdenada = [...listaFiltrada].sort((a, b) => {
             const timeA = new Date(a.due_date).getTime();
             const timeB = new Date(b.due_date).getTime();
@@ -229,16 +218,15 @@ export default function TarefasPage() {
               key={dia.full}
               className={`flex flex-col rounded-2xl border transition-all duration-200 min-w-0 p-2.5 h-full min-h-0 ${
                 dia.isToday
-                  ? "bg-blue-50/25 border-[var(--color-primary)]/40 shadow-xs ring-1 ring-[var(--color-primary)]/20"
-                  : "bg-slate-50/50 border-slate-200/70 hover:border-slate-300/80"
+                  ? "bg-blue-50/25 dark:bg-indigo-950/20 border-[var(--color-primary)]/40 shadow-xs ring-1 ring-[var(--color-primary)]/20"
+                  : "bg-slate-50/50 dark:bg-slate-900/40 border-slate-200/70 dark:border-slate-800 hover:border-slate-300/80 dark:hover:border-slate-700"
               }`}
             >
-              {/* Header do dia */}
-              <div className="shrink-0 flex items-center justify-between gap-1 mb-2.5 pb-2 border-b border-slate-200/80">
+              <div className="shrink-0 flex items-center justify-between gap-1 mb-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800">
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <h2 className={`text-xs font-bold uppercase tracking-wider truncate ${
-                      dia.isToday ? "text-[var(--color-primary)]" : "text-slate-700"
+                      dia.isToday ? "text-[var(--color-primary)]" : "text-slate-700 dark:text-slate-300"
                     }`}>
                       {dia.short}
                     </h2>
@@ -248,17 +236,17 @@ export default function TarefasPage() {
                       </span>
                     )}
                   </div>
-                  <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mt-0.5">
                     {dia.formattedDate}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
-                  <span 
+                  <span
                     className={`text-[11px] font-semibold px-1.5 py-0.5 rounded-md ${
-                      pendentes > 0 
-                        ? "bg-slate-200/70 text-slate-700" 
-                        : "bg-slate-100 text-slate-400"
+                      pendentes > 0
+                        ? "bg-slate-200/70 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500"
                     }`}
                     title={`${lista.length} tarefas (${pendentes} pendentes)`}
                   >
@@ -274,20 +262,19 @@ export default function TarefasPage() {
                 </div>
               </div>
 
-              {/* Lista de tarefas com scroll vertical interno independente */}
               <div className="flex-1 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2">
                 {loading ? (
                   <div className="space-y-2.5 animate-pulse">
-                    <div className="h-20 bg-slate-200/60 rounded-xl"></div>
-                    <div className="h-20 bg-slate-200/60 rounded-xl"></div>
+                    <div className="h-20 bg-slate-200/60 dark:bg-slate-800 rounded-xl"></div>
+                    <div className="h-20 bg-slate-200/60 dark:bg-slate-800 rounded-xl"></div>
                   </div>
                 ) : listaOrdenada.length === 0 ? (
-                  <div className="h-28 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl text-xs text-slate-400 text-center px-2">
+                  <div className="h-28 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-400 dark:text-slate-500 text-center px-2">
                     <span>
-                      {searchTerm 
-                        ? "Nenhum resultado" 
-                        : statusFilter === "completed" 
-                          ? "Nenhuma concluída" 
+                      {searchTerm
+                        ? "Nenhum resultado"
+                        : statusFilter === "completed"
+                          ? "Nenhuma concluída"
                           : statusFilter === "pending"
                             ? "Tudo em dia!"
                             : "Nenhuma tarefa"}

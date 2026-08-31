@@ -90,12 +90,10 @@ export default function PlanejamentoPage() {
     return map;
   }, [allTasks]);
 
-  // Tarefas programadas para esta data específica
   const tasksForThisDate = useMemo(() => {
     return allTasks.filter(task => taskOccursOnDate(task, selectedDate));
   }, [allTasks, selectedDate]);
 
-  // IDs das tarefas que já possuem um bloco agendado no dia
   const allocatedTaskIds = useMemo(() => {
     return new Set(planningBlocks.map(b => b.task_id).filter(Boolean));
   }, [planningBlocks]);
@@ -156,7 +154,6 @@ export default function PlanejamentoPage() {
   const sortedBlocks = [...planningBlocks].sort((a, b) => a.start_time.localeCompare(b.start_time));
   const totalFocusMinutes = calculateTotalFocusMinutes(sortedBlocks);
 
-  // Calendário
   const calendarYear = calendarMonth.getFullYear();
   const calendarMonthIndex = calendarMonth.getMonth();
   const firstWeekday = new Date(calendarYear, calendarMonthIndex, 1).getDay();
@@ -169,7 +166,6 @@ export default function PlanejamentoPage() {
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col p-6 md:p-8 w-full max-w-none overflow-hidden">
-      {/* Top Header */}
       <header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
         <div className="flex items-center gap-3">
           <div className="bg-[var(--color-primary-light)] p-2.5 rounded-2xl text-[var(--color-primary)] shadow-xs">
@@ -186,8 +182,7 @@ export default function PlanejamentoPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Seletor de Dias */}
-          <div className="flex items-center gap-1 bg-white border border-slate-200/80 rounded-xl p-1 shadow-2xs">
+          <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-1 shadow-2xs">
             <button
               onClick={() => changeDay(-1)}
               className="p-2 text-slate-400 hover:text-[var(--color-primary)] hover:bg-[var(--color-primary-light)] rounded-lg transition-colors cursor-pointer"
@@ -235,33 +230,31 @@ export default function PlanejamentoPage() {
         />
       </Modal>
 
-      {/* Grid Central de Planejamento (100% da Largura e Altura) */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-stretch pb-2">
-        {/* Painel Esquerdo: Linha do Tempo de Blocos (7/12 = ~58% da tela) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6 md:p-8 flex flex-col h-full min-h-0">
-          <div className="shrink-0 flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+        <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/80 dark:border-slate-800 p-6 md:p-8 flex flex-col h-full min-h-0">
+          <div className="shrink-0 flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 <Clock size={18} className="text-[var(--color-primary)]" />
                 Linha do Tempo
               </h2>
               {sortedBlocks.length > 0 && (
-                <span className="text-xs text-slate-400 font-medium block mt-0.5">
-                  Tempo total alocado: <strong className="text-slate-700">{formatMinutesToHours(totalFocusMinutes)}</strong>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium block mt-0.5">
+                  Tempo total alocado: <strong className="text-slate-700 dark:text-slate-300">{formatMinutesToHours(totalFocusMinutes)}</strong>
                 </span>
               )}
             </div>
 
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
               {sortedBlocks.length} {sortedBlocks.length === 1 ? "bloco" : "blocos"}
             </span>
           </div>
 
           {sortedBlocks.length === 0 ? (
-            <div className="flex-1 min-h-0 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-2xl text-center p-8">
-              <CalendarClock size={40} className="text-slate-300 mb-2" />
-              <p className="text-sm font-semibold text-slate-700">Nenhum bloco agendado para este dia.</p>
-              <p className="text-xs text-slate-400 mt-1 max-w-sm">
+            <div className="flex-1 min-h-0 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-center p-8">
+              <CalendarClock size={40} className="text-slate-300 dark:text-slate-600 mb-2" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Nenhum bloco agendado para este dia.</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm">
                 Aloque blocos de tempo para suas tarefas e compromissos para manter seu dia produtivo.
               </p>
               <button
@@ -288,13 +281,11 @@ export default function PlanejamentoPage() {
           )}
         </div>
 
-        {/* Painel Direito: Central do Dia (5/12 = ~42% da tela) */}
         <div className="lg:col-span-5 flex flex-col h-full min-h-0 gap-5">
-          {/* Card 1: Mini-Calendário Mensal para Navegação Rápida */}
-          <div className="shrink-0 bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+          <div className="shrink-0 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/80 dark:border-slate-800 p-5">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
               <div>
-                <h3 className="text-sm font-bold text-slate-800 capitalize">{calendarMonthLabel}</h3>
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 capitalize">{calendarMonthLabel}</h3>
                 <button
                   type="button"
                   onClick={goToToday}
@@ -328,7 +319,7 @@ export default function PlanejamentoPage() {
 
             <div className="grid grid-cols-7 gap-y-2 gap-x-1 text-center">
               {["D", "S", "T", "Q", "Q", "S", "S"].map((day, index) => (
-                <div key={index} className="text-[10.5px] font-bold text-slate-400">{day}</div>
+                <div key={index} className="text-[10.5px] font-bold text-slate-400 dark:text-slate-500">{day}</div>
               ))}
 
               {Array.from({ length: firstWeekday }).map((_, index) => (
@@ -352,7 +343,7 @@ export default function PlanejamentoPage() {
                         ? "bg-[var(--color-primary)] text-white shadow-2xs font-bold"
                         : isTodayDate
                           ? "text-[var(--color-primary)] bg-[var(--color-primary-light)] font-bold ring-1 ring-[var(--color-primary)]"
-                          : "text-slate-700 hover:bg-slate-100"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                     }`}
                   >
                     {day}
@@ -362,22 +353,21 @@ export default function PlanejamentoPage() {
             </div>
           </div>
 
-          {/* Card 2: Tarefas do Dia Disponíveis para Alocar */}
-          <div className="flex-1 min-h-0 bg-white rounded-2xl shadow-xs border border-slate-200/80 p-5 flex flex-col justify-between">
+          <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/80 dark:border-slate-800 p-5 flex flex-col justify-between">
             <div className="flex flex-col flex-1 min-h-0">
-              <div className="shrink-0 flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                  <ListChecks size={16} className="text-indigo-600" />
+              <div className="shrink-0 flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                  <ListChecks size={16} className="text-indigo-600 dark:text-indigo-400" />
                   Tarefas deste Dia
                 </h3>
-                <span className="text-[11px] font-semibold text-slate-500">
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                   {tasksForThisDate.length} {tasksForThisDate.length === 1 ? "tarefa" : "tarefas"}
                 </span>
               </div>
 
               <div className="flex-1 min-h-0 overflow-y-auto pr-1 flex flex-col gap-2.5">
                 {tasksForThisDate.length === 0 ? (
-                  <div className="py-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                  <div className="py-6 text-center text-xs text-slate-400 dark:text-slate-500 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
                     Nenhuma tarefa agendada para esta data.
                   </div>
                 ) : (
@@ -387,19 +377,19 @@ export default function PlanejamentoPage() {
                     return (
                       <div
                         key={task.id}
-                        className="flex items-center justify-between p-2.5 bg-slate-50/70 hover:bg-slate-100/70 border border-slate-200/60 rounded-xl transition-all gap-2"
+                        className="flex items-center justify-between p-2.5 bg-slate-50/70 dark:bg-slate-800/40 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700 rounded-xl transition-all gap-2"
                       >
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-semibold text-slate-800 truncate" title={task.title}>
+                          <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate" title={task.title}>
                             {task.title}
                           </h4>
-                          <span className="text-[10px] text-slate-400 font-medium block mt-0.5">
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium block mt-0.5">
                             {task.categoria || "Sem categoria"}
                           </span>
                         </div>
 
                         {isAllocated ? (
-                          <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200/60 shrink-0">
+                          <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-md border border-emerald-200/60 dark:border-emerald-900/50 shrink-0">
                             <CheckCircle2 size={12} />
                             Alocada
                           </span>
@@ -423,7 +413,7 @@ export default function PlanejamentoPage() {
 
             <button
               onClick={() => openCreateForm()}
-              className="mt-3 shrink-0 w-full flex items-center justify-center gap-2 bg-[var(--color-primary-light)] text-[var(--color-primary)] hover:bg-indigo-100 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              className="mt-3 shrink-0 w-full flex items-center justify-center gap-2 bg-[var(--color-primary-light)] text-[var(--color-primary)] hover:bg-indigo-100 dark:hover:bg-indigo-950/40 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer"
             >
               <Plus size={15} />
               Criar Novo Bloco
