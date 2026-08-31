@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   post "/login", to: "sessions#create"
   delete "/logout", to: "sessions#destroy"
   get "/me", to: "sessions#me"
+  get 'reports', to: 'reports#index', as: :reports
+  get 'reports/custom', to: 'reports#custom'
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
