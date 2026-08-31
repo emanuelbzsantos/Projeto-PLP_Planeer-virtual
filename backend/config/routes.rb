@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   # REST
-  resources :users
+  resources :users, only: %i[create show update destroy]
   resources :tasks do
     member do
       patch :toggle

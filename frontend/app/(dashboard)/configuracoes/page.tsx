@@ -14,17 +14,14 @@ export default function ConfiguresPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
   
-  // Controle de Edição do Perfil
   const [isEditing, setIsEditing] = useState(false);
 
-  // Form de Dados (Nome, E-mail, Senha)
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Mensagens globais de feedback
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,7 +36,7 @@ export default function ConfiguresPage() {
         setName(parsedUser.name || "");
         setEmail(parsedUser.email || "");
       } catch (e) {
-        console.error("Erro ao converter dados do usuário:", e);
+        console.error("Erro ao converter dados do usuario:", e);
       }
     }
   }, []);
@@ -62,18 +59,19 @@ export default function ConfiguresPage() {
     setSuccessMessage("");
     setErrorMessage("");
 
-    // Validações no lado do cliente
-    if (newPassword || confirmPassword || oldPassword) {
+    // Só entra no fluxo de troca de senha se o usuario realmente digitou uma NOVA senha.
+    // (evita falso positivo quando o navegador faz autofill do campo "Senha Antiga" sozinho)
+    if (newPassword) {
       if (!oldPassword) {
-        setErrorMessage("Você precisa inserir sua senha antiga para definir uma nova.");
+        setErrorMessage("Voce precisa inserir sua senha antiga para definir uma nova.");
         return;
       }
       if (newPassword !== confirmPassword) {
-        setErrorMessage("A nova senha e a confirmação não coincidem.");
+        setErrorMessage("A nova senha e a confirmacao nao coincidem.");
         return;
       }
       if (newPassword.length < 6) {
-        setErrorMessage("A nova senha precisa ter no mínimo 6 caracteres.");
+        setErrorMessage("A nova senha precisa ter no minimo 6 caracteres.");
         return;
       }
     }
@@ -85,7 +83,6 @@ export default function ConfiguresPage() {
       const token = localStorage.getItem("auth_token");
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-      // Monta o payload
       const payload: any = {
         user: { name, email },
       };
@@ -112,13 +109,11 @@ export default function ConfiguresPage() {
         return;
       }
 
-      // Atualiza localStorage e estado local
       const updatedUser = { ...user, name: data.name, email: data.email };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
       setSuccessMessage("Dados atualizados com sucesso!");
       
-      // Limpa os campos de senha
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -161,19 +156,18 @@ export default function ConfiguresPage() {
           <div className="bg-[var(--color-primary-light)] p-2 rounded-xl text-[var(--color-primary)]">
             <Shield size={24} />
           </div>
-          Configurações
+          Configuracoes
         </h1>
         <p className="text-[var(--color-text-secondary)] mt-2">
-          Gerencie seu perfil, preferências e segurança da conta.
+          Gerencie seu perfil, preferencias e seguranca da conta.
         </p>
       </header>
 
-      {/* Painel Unificado: Dados do Usuário */}
       <div className="bg-white dark:bg-slate-900 border border-[var(--color-border)] dark:border-slate-800 rounded-2xl p-6 shadow-sm mb-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-[var(--color-text)] flex items-center gap-2">
             <User className="text-[var(--color-primary)]" size={20} />
-            Dados do Usuário
+            Dados do Usuario
           </h2>
 
           {!isEditing && user && (
@@ -203,7 +197,6 @@ export default function ConfiguresPage() {
 
         {user ? (
           !isEditing ? (
-            /* MODO DE VISUALIZAÇÃO ESTÁTICA */
             <div className="space-y-4">
               <div className="flex items-center gap-4 p-4 bg-[#F8F9FC] dark:bg-slate-800/60 rounded-2xl border border-[var(--color-border)] dark:border-slate-700">
                 <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-[var(--color-border)] dark:border-slate-700 text-[var(--color-primary)]">
@@ -231,15 +224,14 @@ export default function ConfiguresPage() {
                 </div>
                 <div>
                   <p className="text-xs text-[var(--color-text-secondary)] font-medium uppercase tracking-wider">Senha</p>
-                  <p className="text-base font-semibold text-[var(--color-text)]">••••••••</p>
+                  <p className="text-base font-semibold text-[var(--color-text)]">********</p>
                 </div>
               </div>
             </div>
           ) : (
-            /* MODO DE EDIÇÃO UNIFICADO */
-            <form onSubmit={handleUpdateUser} className="space-y-6">
+            <form onSubmit={handleUpdateUser} className="space-y-6" autoComplete="off">
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Informações Básicas</h3>
+                <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Informacoes Basicas</h3>
                 
                 <div>
                   <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
@@ -271,9 +263,9 @@ export default function ConfiguresPage() {
               <hr className="border-[var(--color-border)] dark:border-slate-700" />
 
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Segurança (Alteração de Senha)</h3>
+                <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Seguranca (Alteracao de Senha)</h3>
                 <p className="text-xs text-[var(--color-text-secondary)]">
-                  Deixe os campos abaixo em branco caso não queira alterar a sua senha.
+                  Deixe os campos abaixo em branco caso nao queira alterar a sua senha.
                 </p>
 
                 <div>
@@ -285,6 +277,7 @@ export default function ConfiguresPage() {
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     placeholder="Insira sua senha atual"
+                    autoComplete="current-password"
                     className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
@@ -297,7 +290,8 @@ export default function ConfiguresPage() {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Mínimo de 6 caracteres"
+                    placeholder="Minimo de 6 caracteres"
+                    autoComplete="new-password"
                     className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
@@ -311,13 +305,14 @@ export default function ConfiguresPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repita a nova senha"
+                    autoComplete="new-password"
                     className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 bg-white dark:bg-slate-800 text-[var(--color-text)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm"
                   />
                 </div>
               </div>
 
               <p className="text-xs text-[var(--color-text-secondary)]">
-                Aviso: Alterações de nome ou e-mail têm um tempo de espera obrigatório de 5 minutos entre atualizações.
+                Aviso: Alteracoes de nome ou e-mail tem um tempo de espera obrigatorio de 5 minutos entre atualizacoes.
               </p>
 
               <div className="flex gap-3 mt-2">
@@ -340,15 +335,14 @@ export default function ConfiguresPage() {
             </form>
           )
         ) : (
-          <p className="text-[var(--color-text-secondary)]">Nenhum dado do usuário encontrado.</p>
+          <p className="text-[var(--color-text-secondary)]">Nenhum dado do usuario encontrado.</p>
         )}
       </div>
 
-      {/* Seção: Logout */}
       <div className="bg-white dark:bg-slate-900 border border-[var(--color-border)] dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-        <h2 className="text-lg font-semibold mb-2 text-[var(--color-text)]">Encerrar Sessão</h2>
+        <h2 className="text-lg font-semibold mb-2 text-[var(--color-text)]">Encerrar Sessao</h2>
         <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-          Isso encerrará sua sessão atual no Planner Virtual. Para voltar, você precisará inserir suas credenciais de login novamente.
+          Isso encerrara sua sessao atual no Planner Virtual. Para voltar, voce precisara inserir suas credenciais de login novamente.
         </p>
 
         <button
