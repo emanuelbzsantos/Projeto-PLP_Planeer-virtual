@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTasks } from "@/hooks/useTasks";
 import { useMetas } from "@/hooks/useMetas";
-import { Clock, CheckCircle2, Target, TrendingUp } from "lucide-react";
+import { Clock, CheckCircle2, Target, TrendingUp, XCircle, ClockArrowDown } from "lucide-react";
 import { InteractiveAgenda } from "@/components/dashboard/InteractiveAgenda";
 
 export default function Dashboard() {
@@ -32,11 +32,19 @@ export default function Dashboard() {
   const allTasks = Array.from(
     new Map(Object.values(tasks).flat().map(task => [task.id, task])).values()
   );
-  const tarefasPendentes = allTasks.filter(t => !t.completed).length;
-  const tarefasConcluidas = allTasks.filter(t => t.completed).length;
-  const totalTasks = allTasks.length;
 
-  const produtividade = totalTasks === 0 ? 0 : Math.round((tarefasConcluidas / totalTasks) * 100);
+  // Categorização avançada dos status
+  const tarefasConcluidas = allTasks.filter(t => t.status === "executada").length;
+  const tarefasCanceladas = allTasks.filter(t => t.status === "cancelada").length;
+  const tarefasAdiadas = allTasks.filter(t => t.status === "adiada").length;
+  
+  // Pendentes reais (exclui executadas, canceladas e adiadas)
+  const tarefasPendentes = allTasks.filter(t => t.status !== "executada" && t.status !== "cancelada" && t.status !== "adiada").length;
+  
+  // Total de tarefas ativas (excluindo canceladas e adiadas para o cálculo justo de produtividade)
+  const tarefasAtivas = allTasks.filter(t => t.status !== "cancelada" && t.status !== "adiada").length;
+
+  const produtividade = tarefasAtivas === 0 ? 0 : Math.round((tarefasConcluidas / tarefasAtivas) * 100);
 
   const allMetas = Object.values(metas).flat();
   const metasEmAndamento = allMetas.filter(m => m.status === "parcialmente_cumprida" || m.status === "nao_cumprida").length;
@@ -54,10 +62,10 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* 4 Cards de Indicadores em Grid 100% da Largura */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 w-full">
+      {/* Grid com 6 Cards de Indicadores */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8 w-full">
         {/* Card 1: Tarefas Pendentes */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-xs border border-slate-200/80 dark:border-slate-800 hover:shadow-sm transition-shadow">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-xs border border-slate-200/80 dark:border-slate-800 hover:shadow-sm transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pendentes</h2>
             <div className="bg-amber-100/80 dark:bg-amber-900/30 p-2 rounded-xl text-amber-600 dark:text-amber-400">
@@ -71,7 +79,7 @@ export default function Dashboard() {
         </div>
 
         {/* Card 2: Tarefas Concluídas */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-xs border border-slate-200/80 dark:border-slate-800 hover:shadow-sm transition-shadow">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-xs border border-slate-200/80 dark:border-slate-800 hover:shadow-sm transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Concluídas</h2>
             <div className="bg-emerald-100/80 dark:bg-emerald-900/30 p-2 rounded-xl text-emerald-600 dark:text-emerald-400">
@@ -84,8 +92,36 @@ export default function Dashboard() {
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium">Tarefas finalizadas</p>
         </div>
 
-        {/* Card 3: Metas Ativas */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-xs border border-slate-200/80 dark:border-slate-800 hover:shadow-sm transition-shadow">
+        {/* Card 3: Tarefas Adiadas */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-xs border border-slate-200/80 dark:border-slate-800 hover:shadow-sm transition-shadow">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Adiadas</h2>
+            <div className="bg-blue-100/80 dark:bg-blue-900/30 p-2 rounded-xl text-blue-600 dark:text-blue-400">
+              <ClockArrowDown size={18} />
+            </div>
+          </div>
+          <p className="text-3xl md:text-4xl font-black text-slate-800 dark:text-slate-100">
+            {tasksLoading ? "-" : tarefasAdiadas}
+          </p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium">Reagendadas</p>
+        </div>
+
+        {/* Card 4: Tarefas Canceladas */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-xs border border-slate-200/80 dark:border-slate-800 hover:shadow-sm transition-shadow">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Canceladas</h2>
+            <div className="bg-rose-100/80 dark:bg-rose-900/30 p-2 rounded-xl text-rose-600 dark:text-rose-400">
+              <XCircle size={18} />
+            </div>
+          </div>
+          <p className="text-3xl md:text-4xl font-black text-slate-800 dark:text-slate-100">
+            {tasksLoading ? "-" : tarefasCanceladas}
+          </p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium">Descartadas</p>
+        </div>
+
+        {/* Card 5: Metas Ativas */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-xs border border-slate-200/80 dark:border-slate-800 hover:shadow-sm transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Metas Ativas</h2>
             <div className="bg-purple-100/80 dark:bg-purple-900/30 p-2 rounded-xl text-purple-600 dark:text-purple-400">
@@ -98,8 +134,8 @@ export default function Dashboard() {
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium">Foco no objetivo</p>
         </div>
 
-        {/* Card 4: Produtividade */}
-        <div className="bg-gradient-to-br from-[var(--color-primary)] to-indigo-600 rounded-2xl p-6 shadow-md text-white">
+        {/* Card 6: Produtividade */}
+        <div className="bg-gradient-to-br from-[var(--color-primary)] to-indigo-600 rounded-2xl p-5 shadow-md text-white">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-bold text-indigo-100 uppercase tracking-wider">Produtividade</h2>
             <div className="bg-white/20 p-2 rounded-xl text-white">

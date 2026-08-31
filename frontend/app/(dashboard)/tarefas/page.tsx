@@ -229,8 +229,8 @@ export default function TarefasPage() {
           const lista = tasks[dia.full] || [];
 
           const listaFiltradaPorStatus = lista.filter((t) => {
-            if (statusFilter === "pending") return !t.completed;
-            if (statusFilter === "completed") return t.completed;
+            if (statusFilter === "pending") return t.status !== "executada";
+            if (statusFilter === "completed") return t.status === "executada";
             return true;
           });
 
@@ -255,7 +255,7 @@ export default function TarefasPage() {
             return timeA - timeB;
           });
 
-          const pendentes = lista.filter((t) => !t.completed).length;
+          const pendentes = lista.filter((t) => t.status !== "executada").length;
 
           return (
             <div

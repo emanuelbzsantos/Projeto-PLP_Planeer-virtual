@@ -14,6 +14,7 @@ export interface Task {
   description: string;
   due_date: string;
   completed: boolean;
+  status?: 'pendente' | 'executada' | 'parcialmente_executada' | 'cancelada' | 'adiada';
   categoria: TaskCategory | string;
   recurring?: boolean;
   recurrence_type?: RecurrenceType;

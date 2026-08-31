@@ -50,6 +50,42 @@ function taskOccursOnDate(task: Task, date: Date) {
   return new Date(`${originalDateKey}T12:00:00`).getDay() === date.getDay();
 }
 
+// Helper para definir rótulo, cor da bolinha e estilo da badge com base no status
+function getTaskStatusConfig(status?: string) {
+  switch (status) {
+    case "executada":
+      return {
+        label: "Executada",
+        dotColor: "#10B981", // Esmeralda
+        badgeClass: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50",
+      };
+    case "parcialmente_executada":
+      return {
+        label: "Parcial",
+        dotColor: "#F59E0B", // Amarelo/Âmbar
+        badgeClass: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/50",
+      };
+    case "cancelada":
+      return {
+        label: "Cancelada",
+        dotColor: "#F43F5E", // Vermelho/Rosa
+        badgeClass: "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/50",
+      };
+    case "adiada":
+      return {
+        label: "Adiada",
+        dotColor: "#3B82F6", // Azul
+        badgeClass: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50",
+      };
+    default:
+      return {
+        label: "Pendente",
+        dotColor: "#94A3B8", // Cinza padrão
+        badgeClass: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300",
+      };
+  }
+}
+
 export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [calendarMonth, setCalendarMonth] = useState(() => {
@@ -134,20 +170,22 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
               {selectedTasks.map(task => {
                 const categoryConfig = getTaskCategoryConfig(task.categoria);
                 const CategoryIcon = categoryConfig.icon;
+                const statusConfig = getTaskStatusConfig(task.status);
+                const isExecuted = task.status === "executada";
 
                 return (
                   <div
                     key={task.id}
-                    className={`group flex items-center justify-between p-3.5 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700 hover:border-slate-300/80 dark:hover:border-slate-600 transition-all rounded-xl ${task.completed ? "opacity-65" : ""}`}
+                    className={`group flex items-center justify-between p-3.5 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700 hover:border-slate-300/80 dark:hover:border-slate-600 transition-all rounded-xl ${isExecuted ? "opacity-65" : ""}`}
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: task.completed ? "#30A46C" : categoryConfig.color }}
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: statusConfig.dotColor }}
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className={`text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[var(--color-primary)] transition-colors ${task.completed ? "line-through text-slate-400 dark:text-slate-500" : ""}`}>
+                          <h3 className={`text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[var(--color-primary)] transition-colors ${isExecuted ? "line-through text-slate-400 dark:text-slate-500" : ""}`}>
                             {task.title}
                           </h3>
                           {task.recurring && (
@@ -172,8 +210,8 @@ export function InteractiveAgenda({ tasks, loading }: InteractiveAgendaProps) {
                         </p>
                       </div>
                     </div>
-                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ml-3 ${task.completed ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/50" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"}`}>
-                      {task.completed ? "Concluída" : "Pendente"}
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ml-3 ${statusConfig.badgeClass}`}>
+                      {statusConfig.label}
                     </span>
                   </div>
                 );
