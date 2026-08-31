@@ -53,4 +53,38 @@ class ReportsController < ApplicationController
       }
     }, status: :ok
   end
+
+  def custom
+    user = current_user
+    report_type = params[:type]
+    start_date = params[:start_date].presence
+    end_date = params[:end_date].presence
+    status = params[:status].presence
+
+    if report_type == 'tasks'
+      tasks = user.tasks
+      tasks = tasks.where('due_date >= ?', start_date) if start_date
+      tasks = tasks.where('due_date <= ?', end_date) if end_date
+      
+      if status == 'completed'
+        tasks = tasks.where(completed: true)
+      elsif status == 'pending'
+        tasks = tasks.where(completed: false)
+      end
+      
+      render json: tasks, status: :ok
+    elsif report_type == 'metas'
+      metas = user.metas
+      metas = metas.where('deadline >= ?', start_date) if start_date
+      metas = metas.where('deadline <= ?', end_date) if end_date
+      
+      if status && status != 'all'
+        metas = metas.where(status: status)
+      end
+      
+      render json: metas, status: :ok
+    else
+      render json: { error: 'Tipo de relatório inválido' }, status: :bad_request
+    end
+  end
 end

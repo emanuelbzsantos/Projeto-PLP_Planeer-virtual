@@ -1,120 +1,66 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { apiGet } from "@/hooks/useApi";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
-} from "recharts";
-import { TrendingUp, CheckCircle, Clock, Target, AlertCircle } from "lucide-react";
-
-// Tipagens para os dados
-interface TasksReport {
-  total: number;
-  completed: number;
-  pending: number;
-  completion_rate: number;
-  history_last_7_days: { date: string; completed: number }[];
-}
-
-interface MetasReport {
-  total: number;
-  cumpridas: number;
-  parcialmente_cumpridas: number;
-  nao_cumpridas: number;
-  completion_rate: number;
-}
-
-interface ReportData {
-  tasks: TasksReport;
-  metas: MetasReport;
-}
-
-// Cores para os gráficos de pizza (Tailwind: indigo-500, blue-400, slate-300)
-const COLORS = ["#6366f1", "#60a5fa", "#cbd5e1"];
+import { AlertCircle, Search, FileText, CheckCircle, Clock, Target, CalendarDays, Download, Printer } from "lucide-react";
+import type { Task, Meta } from "@/types";
 
 export default function RelatoriosPage() {
-  const [data, setData] = useState<ReportData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [reportType, setReportType] = useState<"tasks" | "metas">("tasks");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [results, setResults] = useState<any[] | null>(null);
 
-  useEffect(() => {
-    async function loadReports() {
-      try {
-        const response = await apiGet<ReportData>("/reports");
-        if (response) {
-          setData(response);
-        }
-      } catch (err) {
-        console.error("Erro ao carregar relatórios", err);
-        setError(true);
-      } finally {
-        setIsLoading(false);
-      }
+  async function handleGenerateReport(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    setIsLoading(true);
+    setError(false);
+    try {
+      // Montar query string
+      const params = new URLSearchParams({ type: reportType });
+      if (startDate) params.append("start_date", startDate);
+      if (endDate) params.append("end_date", endDate);
+      if (statusFilter && statusFilter !== "all") params.append("status", statusFilter);
+
+      const response = await apiGet<any[]>(`/reports/custom?${params.toString()}`);
+      setResults(response || []);
+    } catch (err) {
+      console.error("Erro ao gerar relatório", err);
+      setError(true);
+    } finally {
+      setIsLoading(false);
     }
-
-    loadReports();
-  }, []);
-
-  if (isLoading && !data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
   }
-
-  if (error || !data) {
-    return (
-      <div className="p-8 text-center text-red-500">
-        <AlertCircle className="w-12 h-12 mx-auto mb-4" />
-        <p>Não foi possível carregar os relatórios.</p>
-      </div>
-    );
-  }
-
-  const { tasks, metas } = data;
-
-  // Prepara dados para o gráfico de pizza das Metas
-  const pieData = [
-    { name: "Cumpridas", value: metas.cumpridas },
-    { name: "Parciais", value: metas.parcialmente_cumpridas },
-    { name: "Não Cumpridas", value: metas.nao_cumpridas }
-  ];
 
   const handleDownloadCSV = () => {
-    if (!data) return;
-    const { tasks, metas } = data;
+    if (!results || results.length === 0) return;
     
-    const csvLines = [
-      "Categoria,Indicador,Valor",
-      `Tarefas,Taxa de Conclusão (%),${tasks.completion_rate}`,
-      `Tarefas,Pendentes,${tasks.pending}`,
-      `Tarefas,Total Cadastrado,${tasks.total}`,
-      `Metas,Total,${metas.total}`,
-      `Metas,Cumpridas,${metas.cumpridas}`,
-      `Metas,Parcialmente Cumpridas,${metas.parcialmente_cumpridas}`,
-      `Metas,Não Cumpridas,${metas.nao_cumpridas}`,
-      `Metas,Taxa de Conclusão (%),${metas.completion_rate}`,
-      "",
-      "Histórico de Tarefas (Últimos 7 dias)",
-      "Data,Concluídas",
-      ...tasks.history_last_7_days.map(d => `${d.date},${d.completed}`)
-    ];
+    let csvLines: string[] = [];
     
+    if (reportType === "tasks") {
+      csvLines.push("ID,Título,Categoria,Data Limite,Status");
+      results.forEach((task: Task) => {
+        const dateStr = task.due_date ? new Date(task.due_date).toLocaleDateString("pt-BR") : "Sem prazo";
+        const statusStr = task.completed ? "Concluída" : "Pendente";
+        csvLines.push(`"${task.id}","${task.title}","${task.category}","${dateStr}","${statusStr}"`);
+      });
+    } else {
+      csvLines.push("ID,Título,Data Limite,Status");
+      results.forEach((meta: Meta) => {
+        const dateStr = meta.deadline ? new Date(meta.deadline).toLocaleDateString("pt-BR") : "Sem prazo";
+        csvLines.push(`"${meta.id}","${meta.title}","${dateStr}","${meta.status}"`);
+      });
+    }
+
     const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + csvLines.join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `relatorio_planner_virtual_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute("download", `relatorio_${reportType}_${new Date().toISOString().slice(0,10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -124,158 +70,197 @@ export default function RelatoriosPage() {
     <div className="w-full max-w-[1400px] mx-auto flex flex-col h-[calc(100vh-5rem)] px-6 lg:px-8 py-6 animate-fade-in">
       <header className="flex justify-between items-end mb-6 print:mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Relatórios</h1>
-          <p className="text-sm md:text-base text-slate-500 mt-1">
-            Acompanhe seu desempenho em tarefas e metas.
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Gerador de Relatórios</h1>
+          <p className="text-sm md:text-base text-slate-500 mt-1 print:hidden">
+            Filtre e exporte dados detalhados sobre suas tarefas e metas.
           </p>
         </div>
         <div className="print:hidden flex items-center gap-3">
-          <button 
-            onClick={handleDownloadCSV}
-            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-            Exportar CSV
-          </button>
-          <button 
-            onClick={() => window.print()}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-            Imprimir / PDF
-          </button>
+          {results && (
+            <>
+              <button 
+                onClick={handleDownloadCSV}
+                className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+              >
+                <Download size={18} />
+                Exportar CSV
+              </button>
+              <button 
+                onClick={() => window.print()}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+              >
+                <Printer size={18} />
+                Imprimir / PDF
+              </button>
+            </>
+          )}
         </div>
       </header>
 
-      {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* Card: Taxa de Tarefas */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-            <TrendingUp size={20} />
-          </div>
+      {/* Painel de Filtros (Oculto na Impressão) */}
+      <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 print:hidden shrink-0">
+        <form onSubmit={handleGenerateReport} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
           <div>
-            <p className="text-xs font-medium text-slate-500">Tarefas Concluídas</p>
-            <p className="text-xl font-bold text-slate-800">{tasks.completion_rate}%</p>
-          </div>
-        </div>
-
-        {/* Card: Tarefas Pendentes */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <Clock size={20} />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Tarefas Pendentes</p>
-            <p className="text-xl font-bold text-slate-800">{tasks.pending}</p>
-          </div>
-        </div>
-
-        {/* Card: Taxa de Metas */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <Target size={20} />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Metas Cumpridas</p>
-            <p className="text-xl font-bold text-slate-800">{metas.completion_rate}%</p>
-          </div>
-        </div>
-
-        {/* Card: Total de Metas */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <CheckCircle size={20} />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Total de Metas</p>
-            <p className="text-xl font-bold text-slate-800">{metas.total}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Gráficos */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
-        
-        {/* Histórico de Tarefas (BarChart) */}
-        <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col min-h-[250px]">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">Tarefas Concluídas (Últimos 7 dias)</h2>
-          <div className="flex-1 w-full h-full min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={tasks.history_last_7_days} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#94a3b8', fontSize: 12 }} 
-                  dy={10} 
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#94a3b8', fontSize: 12 }} 
-                />
-                <Tooltip 
-                  cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Bar 
-                  dataKey="completed" 
-                  name="Concluídas" 
-                  fill="#6366f1" 
-                  radius={[6, 6, 0, 0]} 
-                  barSize={40} 
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Distribuição de Metas (PieChart) */}
-        <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col min-h-[250px]">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">Status das Metas</h2>
-          <div className="flex-1 w-full h-full min-h-0 flex items-center justify-center relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={5}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            
-            {/* Texto central do Donut */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-bold text-slate-800">{metas.total}</span>
-              <span className="text-xs text-slate-500 font-medium">Metas</span>
-            </div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Tipo</label>
+            <select 
+              value={reportType}
+              onChange={(e) => {
+                setReportType(e.target.value as "tasks"|"metas");
+                setStatusFilter("all");
+                setResults(null);
+              }}
+              className="w-full h-10 px-3 rounded-lg border border-slate-300 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="tasks">Tarefas Detalhadas</option>
+              <option value="metas">Metas Detalhadas</option>
+            </select>
           </div>
           
-          {/* Legenda Customizada */}
-          <div className="flex justify-center gap-4 mt-4">
-            {pieData.map((entry, index) => (
-              <div key={entry.name} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                <span className="text-xs font-medium text-slate-600">{entry.name}</span>
-              </div>
-            ))}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">De (Data Limite)</label>
+            <input 
+              type="date" 
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full h-10 px-3 rounded-lg border border-slate-300 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
           </div>
-        </div>
+          
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Até (Data Limite)</label>
+            <input 
+              type="date" 
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full h-10 px-3 rounded-lg border border-slate-300 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
 
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Status</label>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full h-10 px-3 rounded-lg border border-slate-300 text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="all">Todos</option>
+              {reportType === "tasks" ? (
+                <>
+                  <option value="completed">Concluídas</option>
+                  <option value="pending">Pendentes</option>
+                </>
+              ) : (
+                <>
+                  <option value="cumprida">Cumpridas</option>
+                  <option value="parcialmente_cumprida">Parcialmente Cumpridas</option>
+                  <option value="nao_cumprida">Não Cumpridas</option>
+                </>
+              )}
+            </select>
+          </div>
+
+          <div>
+            <button 
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-10 bg-[var(--color-primary)] hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <Search size={18} />
+                  Gerar Relatório
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Tabela de Resultados */}
+      <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+        {error ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-red-500 p-8">
+            <AlertCircle size={48} className="mb-4 opacity-50" />
+            <p className="text-lg font-medium">Erro ao carregar dados.</p>
+          </div>
+        ) : results === null ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8">
+            <FileText size={64} strokeWidth={1} className="mb-6 opacity-40 text-slate-400" />
+            <p className="text-xl font-medium text-slate-500">Nenhum relatório gerado</p>
+            <p className="text-sm mt-2">Utilize os filtros acima para buscar dados.</p>
+          </div>
+        ) : results.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-slate-500 p-8">
+            <AlertCircle size={48} className="mb-4 opacity-30" />
+            <p className="text-lg font-medium">Nenhum registro encontrado para estes filtros.</p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-slate-50 sticky top-0 border-b border-slate-200 z-10">
+                <tr>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">ID</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Título</th>
+                  {reportType === "tasks" && <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Categoria</th>}
+                  <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Data Limite</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {results.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-3 px-4 text-sm text-slate-400 font-mono">#{item.id}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-slate-700">{item.title}</td>
+                    
+                    {reportType === "tasks" && (
+                      <td className="py-3 px-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 capitalize">
+                          {item.category || "Geral"}
+                        </span>
+                      </td>
+                    )}
+                    
+                    <td className="py-3 px-4 text-sm text-slate-600">
+                      {(item.due_date || item.deadline) 
+                        ? new Date(item.due_date || item.deadline).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) 
+                        : <span className="text-slate-400 italic">Sem prazo</span>}
+                    </td>
+                    
+                    <td className="py-3 px-4">
+                      {reportType === "tasks" ? (
+                        item.completed ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            <CheckCircle size={12} /> Concluída
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
+                            <Clock size={12} /> Pendente
+                          </span>
+                        )
+                      ) : (
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+                          item.status === 'cumprida' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                          item.status === 'parcialmente_cumprida' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                          'bg-slate-100 text-slate-700 border-slate-200'
+                        }`}>
+                          <Target size={12} /> 
+                          {item.status.replace('_', ' ')}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+      
+      {/* Título de Impressão (Só aparece no papel) */}
+      <div className="hidden print:block fixed bottom-4 right-4 text-xs text-slate-400">
+        Gerado em {new Date().toLocaleString('pt-BR')} pelo PlannerVirtual
       </div>
     </div>
   );
