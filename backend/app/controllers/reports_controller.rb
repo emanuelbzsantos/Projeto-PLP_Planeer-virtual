@@ -63,20 +63,36 @@ class ReportsController < ApplicationController
 
     if report_type == 'tasks'
       tasks = user.tasks
-      tasks = tasks.where('due_date >= ?', start_date) if start_date
-      tasks = tasks.where('due_date <= ?', end_date) if end_date
+      if start_date
+        parsed_start = Date.parse(start_date).beginning_of_day rescue start_date
+        tasks = tasks.where('due_date >= ?', parsed_start)
+      end
+      if end_date
+        parsed_end = Date.parse(end_date).end_of_day rescue end_date
+        tasks = tasks.where('due_date <= ?', parsed_end)
+      end
       
-      if status == 'completed'
-        tasks = tasks.where(completed: true)
-      elsif status == 'pending'
-        tasks = tasks.where(completed: false)
+      if status.present? && status != 'all'
+        if status == 'completed' || status == 'executada'
+          tasks = tasks.where("completed = true OR status = 'executada'")
+        elsif status == 'pending' || status == 'pendente'
+          tasks = tasks.where("completed = false AND (status IS NULL OR status = 'pendente')")
+        elsif Task.statuses.key?(status)
+          tasks = tasks.where(status: status)
+        end
       end
       
       render json: tasks, status: :ok
     elsif report_type == 'metas'
       metas = user.metas
-      metas = metas.where('deadline >= ?', start_date) if start_date
-      metas = metas.where('deadline <= ?', end_date) if end_date
+      if start_date
+        parsed_start = Date.parse(start_date).beginning_of_day rescue start_date
+        metas = metas.where('created_at >= ?', parsed_start)
+      end
+      if end_date
+        parsed_end = Date.parse(end_date).end_of_day rescue end_date
+        metas = metas.where('created_at <= ?', parsed_end)
+      end
       
       if status && status != 'all'
         metas = metas.where(status: status)

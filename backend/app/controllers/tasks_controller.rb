@@ -56,7 +56,11 @@ class TasksController < ApplicationController
 
   # Alternar o status de conclusão de uma tarefa
   def toggle
-    @task.update!(completed: !@task.completed)
+    if @task.executada? || @task.completed?
+      @task.update!(status: "pendente", completed: false)
+    else
+      @task.update!(status: "executada", completed: true)
+    end
     render json: @task
   end
 
