@@ -56,8 +56,13 @@ export function useTasks() {
     await fetchTasks();
   };
 
-  const toggleTask = async (id: number) => {
-    await apiPatch(`/tasks/${id}/toggle`);
+  const toggleTask = async (id: number, currentStatus?: string) => {
+    // Se nenhum status for passado, mantemos a compatibilidade antiga invertendo o completed
+    if (typeof currentStatus === 'string') {
+      await apiPatch(`/tasks/${id}`, { task: { status: currentStatus } });
+    } else {
+      await apiPatch(`/tasks/${id}/toggle`);
+    }
     await fetchTasks();
   };
 
