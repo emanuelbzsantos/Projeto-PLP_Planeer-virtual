@@ -50,7 +50,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_30_021025) do
     t.string "recurring_days", default: [], array: true
     t.string "title"
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 

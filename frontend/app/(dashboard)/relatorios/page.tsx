@@ -121,7 +121,7 @@ export default function RelatoriosPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto flex flex-col h-[calc(100vh-5rem)] p-4 animate-fade-in">
+    <div className="w-full max-w-[1400px] mx-auto flex flex-col h-[calc(100vh-5rem)] px-6 lg:px-8 py-6 animate-fade-in">
       <header className="flex justify-between items-end mb-6 print:mb-8">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Relatórios</h1>

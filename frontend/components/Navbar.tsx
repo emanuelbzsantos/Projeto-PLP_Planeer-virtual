@@ -9,7 +9,8 @@ import {
   History,
   Settings, 
   LogOut,
-  CalendarCheck2
+  CalendarCheck2,
+  BarChart2
 } from "lucide-react";
 import { apiDelete } from "@/hooks/useApi";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -36,6 +37,7 @@ export default function Navbar() {
     { name: "Metas", href: "/metas", icon: Target },
     { name: "Planejamento", href: "/planejamento", icon: CalendarClock },
     { name: "Histórico", href: "/historico", icon: History },
+    { name: "Relatórios", href: "/relatorios", icon: BarChart2 },
   ];
 
   return (
