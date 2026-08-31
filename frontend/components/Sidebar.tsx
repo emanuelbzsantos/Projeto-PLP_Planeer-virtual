@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CheckSquare, Target, CalendarClock, Settings, LogOut } from "lucide-react"
+import { LayoutDashboard, CheckSquare, Target, CalendarClock, Settings, LogOut, BarChart2 } from "lucide-react"
 import { useRouter } from "next/navigation"; import { apiDelete } from "@/hooks/useApi"
 
 export default function Sidebar() {
@@ -14,6 +14,7 @@ export default function Sidebar() {
     { name: "Tarefas", href: "/tarefas", icon: CheckSquare },
     { name: "Metas", href: "/metas", icon: Target },
     { name: "Planejamento", href: "/planejamento", icon: CalendarClock },
+    { name: "Relatórios", href: "/relatorios", icon: BarChart2 },
   ];
 
   return (
