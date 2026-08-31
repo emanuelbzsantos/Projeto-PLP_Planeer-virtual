@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { apiGet } from "@/hooks/useApi";
 import { AlertCircle, Search, FileText, CheckCircle, Clock, Target, CalendarDays, Download, Printer } from "lucide-react";
+import * as XLSX from "xlsx";
 import type { Task, Meta } from "@/types";
 
 export default function RelatoriosPage() {
@@ -14,6 +15,12 @@ export default function RelatoriosPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [results, setResults] = useState<any[] | null>(null);
+
+  // Carrega o relatório padrão (Tarefas) ao montar a página
+  useEffect(() => {
+    handleGenerateReport();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleGenerateReport(e?: React.FormEvent) {
     if (e) e.preventDefault();
@@ -36,34 +43,43 @@ export default function RelatoriosPage() {
     }
   }
 
-  const handleDownloadCSV = () => {
+  const handleDownloadExcel = () => {
     if (!results || results.length === 0) return;
     
-    let csvLines: string[] = [];
+    let excelData: any[] = [];
     
     if (reportType === "tasks") {
-      csvLines.push("ID,Título,Categoria,Data Limite,Status");
-      results.forEach((task: Task) => {
-        const dateStr = task.due_date ? new Date(task.due_date).toLocaleDateString("pt-BR") : "Sem prazo";
-        const statusStr = task.completed ? "Concluída" : "Pendente";
-        csvLines.push(`"${task.id}","${task.title}","${task.category}","${dateStr}","${statusStr}"`);
-      });
+      excelData = results.map((task: Task) => ({
+        "ID": task.id,
+        "Título": task.title,
+        "Categoria": task.category || "Geral",
+        "Data Limite": task.due_date ? new Date(task.due_date).toLocaleDateString("pt-BR") : "Sem prazo",
+        "Status": task.completed ? "Concluída" : "Pendente"
+      }));
     } else {
-      csvLines.push("ID,Título,Data Limite,Status");
-      results.forEach((meta: Meta) => {
-        const dateStr = meta.deadline ? new Date(meta.deadline).toLocaleDateString("pt-BR") : "Sem prazo";
-        csvLines.push(`"${meta.id}","${meta.title}","${dateStr}","${meta.status}"`);
-      });
+      excelData = results.map((meta: Meta) => ({
+        "ID": meta.id,
+        "Título": meta.title,
+        "Data Limite": meta.deadline ? new Date(meta.deadline).toLocaleDateString("pt-BR") : "Sem prazo",
+        "Status": meta.status.replace('_', ' ')
+      }));
     }
 
-    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + csvLines.join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `relatorio_${reportType}_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório");
+    
+    // Configura a largura das colunas
+    const maxWidths = excelData.reduce((acc, row) => {
+      Object.keys(row).forEach((key, i) => {
+        const val = row[key] ? row[key].toString() : "";
+        acc[i] = Math.max(acc[i] || key.length, val.length);
+      });
+      return acc;
+    }, []);
+    worksheet["!cols"] = maxWidths.map((w: number) => ({ wch: w + 2 }));
+
+    XLSX.writeFile(workbook, `relatorio_${reportType}_${new Date().toISOString().slice(0,10)}.xlsx`);
   };
 
   return (
@@ -76,24 +92,22 @@ export default function RelatoriosPage() {
           </p>
         </div>
         <div className="print:hidden flex items-center gap-3">
-          {results && (
-            <>
-              <button 
-                onClick={handleDownloadCSV}
-                className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
-              >
-                <Download size={18} />
-                Exportar CSV
-              </button>
-              <button 
-                onClick={() => window.print()}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
-              >
-                <Printer size={18} />
-                Imprimir / PDF
-              </button>
-            </>
-          )}
+          <button 
+            onClick={handleDownloadExcel}
+            disabled={!results || results.length === 0}
+            className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 disabled:opacity-50 disabled:hover:bg-emerald-50 text-emerald-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+          >
+            <Download size={18} />
+            Exportar XLSX
+          </button>
+          <button 
+            onClick={() => window.print()}
+            disabled={!results || results.length === 0}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+          >
+            <Printer size={18} />
+            Imprimir PDF
+          </button>
         </div>
       </header>
 
