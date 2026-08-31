@@ -200,7 +200,7 @@ export default function TarefasPage() {
               onClick={() => setCategoryFilter(isSelected ? "all" : cat)}
               className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 border shrink-0 ${
                 isSelected
-                  ? `${config.badgeClass} ring-2 ring-[var(--color-primary)] font-bold shadow-2xs`
+                  ? `${config.badgeClass} border-transparent font-semibold shadow-xs`
                   : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
