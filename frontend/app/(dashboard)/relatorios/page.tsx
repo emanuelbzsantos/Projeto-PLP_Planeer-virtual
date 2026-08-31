@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { apiGet } from "@/hooks/useApi";
-import { AlertCircle, Search, FileText, CheckCircle, Clock, Target, CalendarDays, Download, Printer, FileDown } from "lucide-react";
+import { AlertCircle, Search, FileText, CheckCircle, Clock, Target, CalendarDays, Download, Printer, FileDown, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import type { Task, Meta } from "@/types";
 
@@ -15,6 +15,9 @@ export default function RelatoriosPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [results, setResults] = useState<any[] | null>(null);
+  
+  // Controle da prévia de impressão/pdf
+  const [showPreview, setShowPreview] = useState(false);
 
   // Carrega o relatório padrão (Tarefas) ao montar a página
   useEffect(() => {
@@ -80,46 +83,87 @@ export default function RelatoriosPage() {
     XLSX.writeFile(workbook, `relatorio_${reportType}_${new Date().toISOString().slice(0,10)}.xlsx`);
   };
 
-  const handleDownloadPDF = async () => {
-    if (!results || results.length === 0) return;
-    
-    const html2pdf = (await import("html2pdf.js")).default;
-    const originalElement = document.getElementById("classic-report");
-    
-    if (originalElement) {
-      // Cria um clone para não piscar na tela
-      const clone = originalElement.cloneNode(true) as HTMLElement;
-      clone.classList.remove("hidden");
-      clone.classList.remove("print:block");
-      clone.style.display = "block";
-      
-      // Coloca num container invisível fora da tela
-      const wrapper = document.createElement("div");
-      wrapper.style.position = "absolute";
-      wrapper.style.left = "-9999px";
-      wrapper.style.top = "-9999px";
-      wrapper.appendChild(clone);
-      document.body.appendChild(wrapper);
-      
-      const opt = {
-        margin:       10,
-        filename:     `relatorio_${reportType}_${new Date().toISOString().slice(0,10)}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-      };
+  // O componente que desenha o layout corporativo (usado tanto na prévia quanto na impressão real)
+  const renderClassicReport = () => (
+    <div className="w-full bg-white text-black font-sans text-xs">
+      {/* Cabeçalho */}
+      <div className="flex justify-between items-center border-b-2 border-black pb-2 mb-2">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 border border-black flex items-center justify-center font-bold text-[10px] text-center p-1">
+            Sem Logo
+          </div>
+          <h1 className="text-xl font-bold uppercase tracking-widest">PlannerVirtual</h1>
+        </div>
+        <div className="text-right text-[10px] space-y-0.5">
+          <p><strong>Terminal:</strong> SISTEMA WEB</p>
+          <p><strong>Usuário:</strong> Desconhecido</p>
+          <p><strong>Relatório:</strong> REL_{reportType.toUpperCase()}</p>
+          <p><strong>Data/Hora:</strong> {new Date().toLocaleString('pt-BR')}</p>
+        </div>
+      </div>
 
-      await html2pdf().set(opt).from(clone).save();
-      
-      // Limpa o clone
-      document.body.removeChild(wrapper);
-    }
-  };
+      {/* Título Principal */}
+      <div className="bg-[#2D2D2D] text-white font-bold text-xs uppercase p-1.5 mb-1 tracking-wider">
+        RELATÓRIO DE {reportType === 'tasks' ? 'TAREFAS' : 'METAS'}
+      </div>
+
+      {/* Subtítulo */}
+      <div className="bg-[#EAEAEA] text-black font-bold text-[10px] uppercase p-1 mb-2 border-y border-black tracking-wider">
+        TIPO / DESCRIÇÃO: {reportType === 'tasks' ? 'Detalhamento Analítico de Tarefas Cadastradas' : 'Listagem Consolidada de Metas'}
+      </div>
+
+      {/* Tabela */}
+      <table className="w-full text-left border-collapse border border-black text-[9px] mb-4">
+        <thead className="bg-[#F5F5F5] border-b-2 border-black">
+          <tr>
+            <th className="p-1 border border-black whitespace-nowrap">ID</th>
+            <th className="p-1 border border-black w-full">TÍTULO</th>
+            {reportType === "tasks" && <th className="p-1 border border-black">CATEGORIA</th>}
+            <th className="p-1 border border-black whitespace-nowrap">DATA LIMITE</th>
+            <th className="p-1 border border-black whitespace-nowrap">STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {results?.map((item) => (
+            <tr key={item.id} className="border-b border-gray-300">
+              <td className="p-1 border border-black font-mono">#{item.id}</td>
+              <td className="p-1 border border-black font-bold">{item.title}</td>
+              {reportType === "tasks" && (
+                <td className="p-1 border border-black">{item.category || "-"}</td>
+              )}
+              <td className="p-1 border border-black">
+                {(item.due_date || item.deadline) 
+                  ? new Date(item.due_date || item.deadline).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) 
+                  : "-"}
+              </td>
+              <td className="p-1 border border-black uppercase font-bold">
+                {reportType === "tasks" 
+                  ? (item.completed ? 'CONCLUÍDA' : 'PENDENTE')
+                  : item.status.replace('_', ' ')}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Filtros */}
+      <div className="bg-[#2D2D2D] text-white font-bold text-xs uppercase p-1.5 mb-2 tracking-wider">
+        FILTROS APLICADOS
+      </div>
+      <div className="text-[10px] space-y-0.5 font-mono">
+        <p>Tipo de Relatório.....: {reportType === 'tasks' ? 'Tarefas' : 'Metas'}</p>
+        <p>Data Inicial..........: {startDate ? new Date(startDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Todos os registros'}</p>
+        <p>Data Final............: {endDate ? new Date(endDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Todos os registros'}</p>
+        <p>Status Selecionado....: {statusFilter.toUpperCase()}</p>
+        <p>Total de Registros....: {results?.length || 0}</p>
+      </div>
+    </div>
+  );
 
   return (
     <>
       {/* --- INTERFACE WEB (ESCONDIDA NA IMPRESSÃO) --- */}
-      <div className="print:hidden w-full max-w-[1400px] mx-auto flex flex-col h-[calc(100vh-5rem)] px-6 lg:px-8 py-6 animate-fade-in">
+      <div className={`print:hidden w-full max-w-[1400px] mx-auto flex flex-col h-[calc(100vh-5rem)] px-6 lg:px-8 py-6 animate-fade-in ${showPreview ? 'hidden' : 'flex'}`}>
         <header className="flex justify-between items-end mb-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Gerador de Relatórios</h1>
@@ -131,25 +175,25 @@ export default function RelatoriosPage() {
             <button 
               onClick={handleDownloadExcel}
               disabled={!results || results.length === 0}
-              className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 disabled:opacity-50 disabled:hover:bg-emerald-50 text-emerald-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 disabled:opacity-50 disabled:hover:bg-emerald-50 text-emerald-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm cursor-pointer"
             >
               <Download size={18} />
               Exportar XLSX
             </button>
             
             <button 
-              onClick={handleDownloadPDF}
+              onClick={() => setShowPreview(true)}
               disabled={!results || results.length === 0}
-              className="flex items-center gap-2 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 disabled:hover:bg-rose-50 text-rose-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center gap-2 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 disabled:hover:bg-rose-50 text-rose-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm cursor-pointer"
             >
               <FileDown size={18} />
-              Baixar PDF
+              PDF / Prévia
             </button>
             
             <button 
-              onClick={() => window.print()}
+              onClick={() => setShowPreview(true)}
               disabled={!results || results.length === 0}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 disabled:opacity-50 disabled:hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm"
+              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 disabled:opacity-50 disabled:hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm cursor-pointer"
             >
               <Printer size={18} />
               Imprimir
@@ -223,7 +267,7 @@ export default function RelatoriosPage() {
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full h-10 bg-[var(--color-primary)] hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -319,82 +363,43 @@ export default function RelatoriosPage() {
         </div>
       </div>
 
-      {/* --- RELATÓRIO CLÁSSICO (ESCONDIDO NA WEB, USADO NO PDF E NA IMPRESSORA) --- */}
-      <div 
-        id="classic-report" 
-        className="hidden print:block w-full bg-white text-black font-sans text-xs p-6"
-      >
-        {/* Cabeçalho */}
-        <div className="flex justify-between items-center border-b-2 border-black pb-2 mb-2">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 border border-black flex items-center justify-center font-bold text-[10px] text-center p-1">
-              Sem Logo
+      {/* --- OVERLAY DE PRÉVIA (ESCONDIDO NA IMPRESSÃO) --- */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex flex-col print:hidden animate-fade-in">
+          {/* Header do Overlay */}
+          <div className="p-4 flex justify-between items-center text-white bg-slate-900 shadow-md">
+            <div>
+              <h3 className="font-bold text-lg">Prévia do Documento</h3>
+              <p className="text-xs text-slate-400 mt-1">Verifique o layout corporativo antes de gerar o PDF ou imprimir.</p>
             </div>
-            <h1 className="text-xl font-bold uppercase tracking-widest">PlannerVirtual</h1>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setShowPreview(false)} 
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <X size={18} /> Cancelar
+              </button>
+              <button 
+                onClick={() => window.print()} 
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg transition-colors cursor-pointer"
+              >
+                <Printer size={18} /> Confirmar & Gerar PDF
+              </button>
+            </div>
           </div>
-          <div className="text-right text-[10px] space-y-0.5">
-            <p><strong>Terminal:</strong> SISTEMA WEB</p>
-            <p><strong>Usuário:</strong> Desconhecido</p>
-            <p><strong>Relatório:</strong> REL_{reportType.toUpperCase()}</p>
-            <p><strong>Data/Hora:</strong> {new Date().toLocaleString('pt-BR')}</p>
+          
+          {/* Scroll da folha A4 */}
+          <div className="flex-1 overflow-auto p-4 md:p-8 flex justify-center">
+            <div className="w-full max-w-[1024px] bg-white shadow-2xl p-8 mb-8" style={{ minHeight: "297mm" }}>
+              {renderClassicReport()}
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Título Principal */}
-        <div className="bg-[#2D2D2D] text-white font-bold text-xs uppercase p-1.5 mb-1 tracking-wider">
-          RELATÓRIO DE {reportType === 'tasks' ? 'TAREFAS' : 'METAS'}
-        </div>
-
-        {/* Subtítulo */}
-        <div className="bg-[#EAEAEA] text-black font-bold text-[10px] uppercase p-1 mb-2 border-y border-black tracking-wider">
-          TIPO / DESCRIÇÃO: {reportType === 'tasks' ? 'Detalhamento Analítico de Tarefas Cadastradas' : 'Listagem Consolidada de Metas'}
-        </div>
-
-        {/* Tabela */}
-        <table className="w-full text-left border-collapse border border-black text-[9px] mb-4">
-          <thead className="bg-[#F5F5F5] border-b-2 border-black">
-            <tr>
-              <th className="p-1 border border-black whitespace-nowrap">ID</th>
-              <th className="p-1 border border-black w-full">TÍTULO</th>
-              {reportType === "tasks" && <th className="p-1 border border-black">CATEGORIA</th>}
-              <th className="p-1 border border-black whitespace-nowrap">DATA LIMITE</th>
-              <th className="p-1 border border-black whitespace-nowrap">STATUS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results?.map((item) => (
-              <tr key={item.id} className="border-b border-gray-300">
-                <td className="p-1 border border-black font-mono">#{item.id}</td>
-                <td className="p-1 border border-black font-bold">{item.title}</td>
-                {reportType === "tasks" && (
-                  <td className="p-1 border border-black">{item.category || "-"}</td>
-                )}
-                <td className="p-1 border border-black">
-                  {(item.due_date || item.deadline) 
-                    ? new Date(item.due_date || item.deadline).toLocaleDateString("pt-BR", { timeZone: 'UTC' }) 
-                    : "-"}
-                </td>
-                <td className="p-1 border border-black uppercase font-bold">
-                  {reportType === "tasks" 
-                    ? (item.completed ? 'CONCLUÍDA' : 'PENDENTE')
-                    : item.status.replace('_', ' ')}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Filtros */}
-        <div className="bg-[#2D2D2D] text-white font-bold text-xs uppercase p-1.5 mb-2 tracking-wider">
-          FILTROS APLICADOS
-        </div>
-        <div className="text-[10px] space-y-0.5 font-mono">
-          <p>Tipo de Relatório.....: {reportType === 'tasks' ? 'Tarefas' : 'Metas'}</p>
-          <p>Data Inicial..........: {startDate ? new Date(startDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Todos os registros'}</p>
-          <p>Data Final............: {endDate ? new Date(endDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Todos os registros'}</p>
-          <p>Status Selecionado....: {statusFilter.toUpperCase()}</p>
-          <p>Total de Registros....: {results?.length || 0}</p>
-        </div>
+      {/* --- RELATÓRIO CLÁSSICO PARA IMPRESSORA (ESCONDIDO NA WEB) --- */}
+      <div className="hidden print:block w-full p-0 m-0">
+        {renderClassicReport()}
       </div>
     </>
   );
