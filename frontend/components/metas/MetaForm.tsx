@@ -104,8 +104,7 @@ export function MetaForm({ onSubmit, onCancel, defaultPeriodo = 'semana', initia
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-          disabled={isSubmitting}
+          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
         >
           Cancelar
         </button>

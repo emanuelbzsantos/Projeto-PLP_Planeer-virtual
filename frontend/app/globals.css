@@ -43,3 +43,29 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+  --color-primary: #7C7CE8;
+  --color-primary-light: #2A2A45;
+  --color-primary-hover: #8F8FEE;
+  --color-surface: #17181C;
+  --color-background: #0F1012;
+  --color-text: #F0F0F3;
+  --color-text-secondary: #A8ADB8;
+  --color-border: #2C2E33;
+  --color-success: #3DD68C;
+  --color-warning: #F5B93D;
+  --color-danger: #F26A6E;
+  --background: #0F1012;
+  --foreground: #F0F0F3;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f4147;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #55585f;
+}

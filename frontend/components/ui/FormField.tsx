@@ -32,7 +32,7 @@ export function FormInput({
         </label>
         {maxLength !== undefined && currentLength !== undefined && (
           <span className={`text-[11px] ${
-            currentLength >= maxLength ? 'text-rose-500 font-semibold' : 'text-slate-400'
+            currentLength >= maxLength ? 'text-rose-500 font-semibold' : 'text-slate-400 dark:text-slate-500'
           }`}>
             {currentLength}/{maxLength}
           </span>
@@ -43,8 +43,8 @@ export function FormInput({
         maxLength={maxLength}
         className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-all text-sm ${
           error 
-            ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500 bg-rose-50/20' 
-            : 'border-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] bg-white'
+            ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-900/50 focus:border-rose-500 bg-rose-50/20 dark:bg-rose-950/20' 
+            : 'border-[var(--color-border)] dark:border-slate-700 focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] bg-white dark:bg-slate-800 text-[var(--color-text)]'
         } ${className}`}
         {...props}
       />
@@ -78,7 +78,7 @@ export function FormTextarea({
         </label>
         {maxLength !== undefined && currentLength !== undefined && (
           <span className={`text-[11px] ${
-            currentLength >= maxLength ? 'text-rose-500 font-semibold' : 'text-slate-400'
+            currentLength >= maxLength ? 'text-rose-500 font-semibold' : 'text-slate-400 dark:text-slate-500'
           }`}>
             {currentLength}/{maxLength}
           </span>
@@ -89,8 +89,8 @@ export function FormTextarea({
         maxLength={maxLength}
         className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-all text-sm resize-none ${
           error 
-            ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500 bg-rose-50/20' 
-            : 'border-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] bg-white'
+            ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-900/50 focus:border-rose-500 bg-rose-50/20 dark:bg-rose-950/20' 
+            : 'border-[var(--color-border)] dark:border-slate-700 focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] bg-white dark:bg-slate-800 text-[var(--color-text)]'
         } ${className}`}
         {...props}
       />
@@ -126,10 +126,10 @@ export function FormSelect({
       </label>
       <select
         id={id}
-        className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-all text-sm bg-white ${
+        className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-all text-sm bg-white dark:bg-slate-800 text-[var(--color-text)] ${
           error 
-            ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 focus:border-rose-500 bg-rose-50/20' 
-            : 'border-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)]'
+            ? 'border-rose-400 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-900/50 focus:border-rose-500 bg-rose-50/20 dark:bg-rose-950/20' 
+            : 'border-[var(--color-border)] dark:border-slate-700 focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)]'
         } ${className}`}
         {...props}
       >

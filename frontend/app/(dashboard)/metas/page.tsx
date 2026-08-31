@@ -45,10 +45,9 @@ export default function MetasPage() {
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col p-6 md:p-8 w-full max-w-none overflow-hidden">
-      {/* Top Header */}
       <header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 w-full">
         <div className="flex items-center gap-3">
-          <div className="bg-purple-100 p-2.5 rounded-2xl text-purple-600 shadow-xs">
+          <div className="bg-purple-100 dark:bg-purple-950/40 p-2.5 rounded-2xl text-purple-600 dark:text-purple-400 shadow-xs">
             <Target size={26} />
           </div>
           <div>
@@ -62,27 +61,25 @@ export default function MetasPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Barra de Busca */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
             <input 
               type="text" 
               placeholder="Buscar metas..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-8 py-2 w-56 md:w-64 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-sm text-[var(--color-text)] shadow-xs"
+              className="pl-9 pr-8 py-2 w-56 md:w-64 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all text-sm shadow-xs"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full"
                 title="Limpar busca"
               >
                 <X size={14} />
               </button>
             )}
           </div>
-
           <button
             onClick={() => openCreateForm("semana")}
             className="flex items-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white px-4 py-2 rounded-xl transition-all font-medium text-sm shadow-xs hover:shadow-sm whitespace-nowrap cursor-pointer"
@@ -106,7 +103,6 @@ export default function MetasPage() {
         />
       </Modal>
 
-      {/* Grid de 3 Colunas 100% da Largura com Scroll Interno */}
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-3 gap-6 w-full items-stretch pb-2">
         {periodosConfig.map((p) => {
           const rawLista = metas[p.key] || [];
@@ -118,21 +114,20 @@ export default function MetasPage() {
           return (
             <div 
               key={p.key} 
-              className="flex flex-col rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 h-full min-h-0 hover:border-slate-300/80 transition-all"
+              className="flex flex-col rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 h-full min-h-0 hover:border-slate-300/80 dark:hover:border-slate-700 transition-all"
             >
-              {/* Header do Período */}
-              <div className="shrink-0 flex items-center justify-between mb-3 pb-2.5 border-b border-slate-200/80">
+              <div className="shrink-0 flex items-center justify-between mb-3 pb-2.5 border-b border-slate-200/80 dark:border-slate-800">
                 <div>
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     {p.title}
                   </h2>
-                  <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mt-0.5">
                     {p.subtitle}
                   </span>
                 </div>
                 
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-200/70 text-slate-700">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                     {lista.length}
                   </span>
                   <button 
@@ -145,18 +140,17 @@ export default function MetasPage() {
                 </div>
               </div>
 
-              {/* Lista de Metas com Scroll Vertical Interno */}
               <div className="flex-1 min-h-0 overflow-y-auto pr-1 flex flex-col gap-3">
                 {loading ? (
                   <div className="space-y-3 animate-pulse">
-                    <div className="h-28 bg-slate-200/60 rounded-xl"></div>
-                    <div className="h-28 bg-slate-200/60 rounded-xl"></div>
+                    <div className="h-28 bg-slate-200/60 dark:bg-slate-800 rounded-xl"></div>
+                    <div className="h-28 bg-slate-200/60 dark:bg-slate-800 rounded-xl"></div>
                   </div>
                 ) : lista.length === 0 ? (
-                  <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl text-xs text-slate-400 text-center px-4">
+                  <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-400 dark:text-slate-500 text-center px-4">
                     <TargetPlaceholder />
                     <span className="font-medium mt-2">{searchTerm ? "Nenhuma meta encontrada" : "Nenhuma meta"}</span>
-                    <span className="text-[11px] text-slate-400 mt-0.5">Você não tem metas para este período.</span>
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Você não tem metas para este período.</span>
                   </div>
                 ) : (
                   lista.map((meta) => (

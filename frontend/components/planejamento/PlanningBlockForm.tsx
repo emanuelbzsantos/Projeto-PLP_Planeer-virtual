@@ -150,7 +150,7 @@ export function PlanningBlockForm({
           className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
             mode === 'texto'
               ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-primary)] font-semibold shadow-xs'
-              : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
+              : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800'
           }`}
         >
           <Clock size={16} />
@@ -163,7 +163,7 @@ export function PlanningBlockForm({
           className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
             mode === 'tarefa'
               ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-primary)] font-semibold shadow-xs'
-              : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
+              : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800'
           }`}
         >
           <ListChecks size={16} />
@@ -223,7 +223,7 @@ export function PlanningBlockForm({
               setStartTime(e.target.value);
               if (errors.time) setErrors(prev => ({ ...prev, time: undefined }));
             }}
-            className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm bg-white"
+            className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm bg-white dark:bg-slate-800 text-[var(--color-text)]"
             required
           />
         </div>
@@ -239,7 +239,7 @@ export function PlanningBlockForm({
               setEndTime(e.target.value);
               if (errors.time) setErrors(prev => ({ ...prev, time: undefined }));
             }}
-            className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm bg-white"
+            className="w-full px-3 py-2 border border-[var(--color-border)] dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-light)] focus:border-[var(--color-primary)] transition-all text-sm bg-white dark:bg-slate-800 text-[var(--color-text)]"
             required
           />
         </div>
@@ -253,14 +253,14 @@ export function PlanningBlockForm({
 
       {/* Atalhos Rápidos */}
       <div>
-        <span className="block text-xs font-medium text-slate-500 mb-2">Atalhos de duração</span>
+        <span className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Atalhos de duração</span>
         <div className="flex flex-wrap gap-1.5">
           {DURATION_PRESETS.map((preset) => (
             <button
               key={preset.label}
               type="button"
               onClick={() => applyPreset(preset)}
-              className="px-2.5 py-1 text-xs rounded-lg font-medium transition-all bg-white text-slate-600 border border-slate-200 hover:border-slate-300 cursor-pointer"
+              className="px-2.5 py-1 text-xs rounded-lg font-medium transition-all bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
             >
               {preset.label}
             </button>
@@ -272,7 +272,7 @@ export function PlanningBlockForm({
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           disabled={isSubmitting}
         >
           Cancelar

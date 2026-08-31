@@ -151,7 +151,6 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-      {/* Campo Título com FormInput reutilizável */}
       <FormInput
         id="task_title"
         label="Título"
@@ -169,7 +168,6 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
         placeholder="Ex: Reunião de alinhamento"
       />
 
-      {/* Campo Categoria com FormSelect reutilizável */}
       <FormSelect
         id="task_categoria"
         label="Categoria"
@@ -182,7 +180,6 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
         ))}
       </FormSelect>
 
-      {/* Campo Descrição com FormTextarea reutilizável */}
       <FormTextarea
         id="task_description"
         label="Descrição (opcional)"
@@ -194,7 +191,6 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
         rows={3}
       />
 
-      {/* Campo Data e Hora com FormInput reutilizável */}
       <FormInput
         id="task_due_date"
         type="datetime-local"
@@ -210,36 +206,33 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
         error={errors.dueDate}
       />
 
-      {/* Seção de Tipo de Lembrete / Recorrência */}
-      <div className="pt-2 border-t border-[var(--color-border)]">
+      <div className="pt-2 border-t border-[var(--color-border)] dark:border-slate-700">
         <label className="block text-sm font-medium text-[var(--color-text)] mb-2 flex items-center gap-1.5">
           <Bell size={16} className="text-[var(--color-primary)]" />
           Tipo de Lembrete
         </label>
 
         <div className="grid grid-cols-2 gap-3">
-          {/* Opção Lembrete Único */}
           <button
             type="button"
             onClick={() => setRecurrenceType('single')}
             className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
               recurrenceType === 'single'
                 ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-primary)] font-semibold shadow-xs'
-                : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
+                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800'
             }`}
           >
             <Calendar size={16} />
             Único (Pontual)
           </button>
 
-          {/* Opção Lembrete Recorrente Semanal */}
           <button
             type="button"
             onClick={handleSelectWeekly}
             className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
               recurrenceType === 'weekly'
                 ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]/40 text-[var(--color-primary)] font-semibold shadow-xs'
-                : 'border-slate-200 hover:border-slate-300 text-slate-600 bg-white'
+                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800'
             }`}
           >
             <Repeat size={16} />
@@ -247,10 +240,9 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
           </button>
         </div>
 
-        {/* Seleção de dias da semana para lembrete semanal */}
         {recurrenceType === 'weekly' && (
-          <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 animate-in fade-in duration-200">
-            <span className="text-xs font-medium text-slate-600 block">
+          <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2 animate-in fade-in duration-200">
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-300 block">
               Repetir nos dias da semana:
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -264,7 +256,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
                     className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all flex items-center gap-1 cursor-pointer ${
                       isSelected
                         ? 'bg-[var(--color-primary)] text-white shadow-xs'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                     }`}
                   >
                     {isSelected && <Check size={12} strokeWidth={3} />}
@@ -274,7 +266,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
               })}
             </div>
             {selectedDays.length === 0 && (
-              <p className="text-[11px] text-amber-600">
+              <p className="text-[11px] text-amber-600 dark:text-amber-400">
                 Selecione pelo menos um dia (ou usaremos o dia da data selecionada).
               </p>
             )}
@@ -286,7 +278,7 @@ export function TaskForm({ onSubmit, onCancel, defaultDate = '', initialTask = n
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+          className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           disabled={isSubmitting}
         >
           Cancelar
